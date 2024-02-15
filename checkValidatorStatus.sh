@@ -60,24 +60,24 @@ echo  "Validator:   $validatorIdentityPubKey"
 echo  "Vote:        $validatorVoteAccountPubKey"
 echo
 
-epoch=`${execSolana} epoch-info --url ${rpcURL} --output json`
+epoch=`${execSolana} epoch-info --url $rpcURL --output json`
 #epochNumber=`echo $epoch | jq .epoch`
-epochProgress=`${execSolana} epoch-info --url ${rpcURL} | grep "Epoch Completed Percent:" | awk '{print $4}'`
+epochProgress=`${execSolana} epoch-info --url $rpcURL | grep "Epoch Completed Percent:" | awk '{print $4}'`
 
 echo "Epoch:"
 echo " Number: $epochNumberCurrent"
-echo " Completed: ${epochProgress}"
+echo " Completed: $epochProgress"
 
-slotsScheduled=`${execSolana} leader-schedule | grep ${validatorIdentityPubKey} | wc -l`
-slotsBuilt=`${execSolana} block-production --url ${rpcURL} | grep -e ${validatorIdentityPubKey} | awk '{print $ 2}'`
+slotsScheduled=`${execSolana} leader-schedule | grep $validatorIdentityPubKey | wc -l`
+slotsBuilt=`${execSolana} block-production --url $rpcURL | grep -e $validatorIdentityPubKey | awk '{print $ 2}'`
 
 	if [[ ! -z $slotsBuit ]] || [[ "$slotsBuilt" == "" ]];then
 		slotsBuilt=0
 	fi
 
 let slotsRemaining=$slotsScheduled-$slotsBuilt
-slotsSkipped=`${execSolana} block-production --url ${rpcURL} | grep -e ${validatorIdentityPubKey} | awk '{print $4}'`
-slotsSigned=`${execSolana}  block-production --url ${rpcURL} | grep -e ${validatorIdentityPubKey} | awk '{print $3}'`
+slotsSkipped=`${execSolana} block-production --url $rpcURL | grep -e $validatorIdentityPubKey | awk '{print $4}'`
+slotsSigned=`${execSolana}  block-production --url $rpcURL | grep -e $validatorIdentityPubKey | awk '{print $3}'`
 
 	if [[ -z $slotsSigned ]]; then
 	        slotsSigned=0
@@ -87,33 +87,33 @@ slotsSigned=`${execSolana}  block-production --url ${rpcURL} | grep -e ${validat
 	        slotsSkipped=0
 	fi
 
-echo " Scheduled: ${slotsScheduled}"
-echo " Built:     ${slotsBuilt}"
-echo " Signed:    $colorGreen${slotsSigned}$colorEnd"
-echo " Skipped:   $colorRed${slotsSkipped}$colorEnd"
-echo " Remaining: ${slotsRemaining}"
+echo " Scheduled: $slotsScheduled"
+echo " Built:     $slotsBuilt"
+echo " Signed:    $colorGreen$slotsSigned$colorEnd"
+echo " Skipped:   $colorRed$slotsSkipped$colorEnd"
+echo " Remaining: $slotsRemaining"
 
 # Skiprate checking
-skipInfo=`${execSolana} block-production --url ${rpcURL} | grep -e ${validatorIdentityPubKey}`
-skipPercent=`echo ${skipInfo} | gawk '{print $NF}'`
+skipInfo=`${execSolana} block-production --url $rpcURL | grep -e $validatorIdentityPubKey`
+skipPercent=`echo $skipInfo | gawk '{print $NF}'`
 skipPercent=${skipPercent%"%"}
-skipTotal=`${execSolana} block-production --url ${rpcURL} | grep -e total`
-skipPercentTotal=`echo ${skipTotal} | gawk '{print $NF}'`
+skipTotal=`${execSolana} block-production --url $rpcURL | grep -e total`
+skipPercentTotal=`echo $skipTotal | gawk '{print $NF}'`
 skipPercentTotal=${skipPercentTotal%"%"}
 
 	if [[ -z $skipPercent ]]; then
                 skipPercent=0
 	fi
 
-echo " Skip rate: ${skipPercent}%"
-echo " Skip net:  ${skipPercentTotal}%"
+echo " Skip rate: $skipPercent%"
+echo " Skip net:  $skipPercentTotal%"
 echo ""
 
-validatorCreditsTotal=`${execSolana} vote-account --url ${rpcURL} ${validatorVoteAccountPubKey} --output=json | jq .epochVotingHistory[-1].creditsEarned`
+validatorCreditsTotal=`${execSolana} vote-account --url $rpcURL $validatorVoteAccountPubKey --output=json | jq .epochVotingHistory[-1].creditsEarned`
 echo " Credits:   ${validatorCreditsTotal}"
-validatorPosition=`${execSolana} validators --url ${rpcURL} --sort=credits -r -n | grep  -e ${validatorIdentityPubKey} | awk '{print $1}'`
-validatorsPositions=`${execSolana} validators --url ${rpcURL} --sort=credits -r -n | grep SOL -c`
-echo " Position:  ${validatorPosition} / ${validatorsPositions}"
+validatorPosition=`${execSolana} validators --url $rpcURL --sort=credits -r -n | grep  -e $validatorIdentityPubKey | awk '{print $1}'`
+validatorsPositions=`${execSolana} validators --url $rpcURL --sort=credits -r -n | grep SOL -c`
+echo " Position:  $validatorPosition / $validatorsPositions"
 echo ""
 
 echo "Slots:"
@@ -122,8 +122,8 @@ echo " Next:     $slotLeaderNext"
 echo " Next in:  $slotsDateToLeaderNextText"
 echo " Slots to: $slotsToLeaderNext"
 
-balanceValidator=`solana balance --url ${rpcURL} ${validatorIdentityPubKey} | awk '{print $1}' | jq '.*100|round/100'`
-balanceVoteAccount=`solana balance --url ${rpcURL} ${validatorVoteAccountPubKey} | awk '{print $1}' | jq '.*100|round/100'`
+balanceValidator=`solana balance --url $rpcURL $validatorIdentityPubKey | awk '{print $1}' | jq '.*100|round/100'`
+balanceVoteAccount=`solana balance --url $rpcURL $validatorVoteAccountPubKey | awk '{print $1}' | jq '.*100|round/100'`
 echo
 
 
