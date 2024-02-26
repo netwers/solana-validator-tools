@@ -17,7 +17,7 @@ export logPath="$HOME/snode/"
 export networkType="mainnet"
 export nodeID="1"
 export rpcURL="http://localhost:8899"
-export solanaPrice=$(curl -sf --connect-timeout 2 'https://api.margus.one/solana/price/' | jq -r .price | jq '.*1000|round/1000')
+export solanaPrice=$(curl -sf --insecure --connect-timeout 2 'https://api.margus.one/solana/price/' | jq -r .price | jq '.*1000|round/1000')
 
 export keysPath="$HOME/snode/sol-keys/$networkType-$nodeID"
 export validatorKeyFile="validator-keypair.json"

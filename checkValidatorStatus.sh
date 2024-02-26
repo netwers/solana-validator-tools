@@ -144,8 +144,8 @@ echo " Vote account: $balanceVoteAccount"
 		balanceSelfStaked=`$scriptPath/getStake.sh | jq .activeStake | jq './10000000|round/100'`
 		balanceSelfStakedUSDT=`echo $balanceSelfStaked | jq ".*$solanaPrice|round"`
 		echo " Total staked: $validatorActivatedStake"
+                echo " SOL/USDT:     $colorGreen$solanaPrice$colorEnd"
 		echo " Self staked:  $balanceSelfStaked ($colorGreen"USDT" $balanceSelfStakedUSDT$colorEnd)"
-		echo " SOL/USDT:     $colorGreen$solanaPrice$colorEnd"
 	fi
 
 unixtime=`date +%s`;

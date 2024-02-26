@@ -25,4 +25,4 @@ echo ""
 date
 echo ""
 
-$execSolanaWatchtower --monitor-active-stake --validator-identity $validatorIdentityPubKey --minimum-validator-identity-balance 1 --interval 30
+$execSolanaWatchtower --monitor-active-stake --validator-identity $validatorIdentityPubKey --unhealthy-threshold 2 --minimum-validator-identity-balance 1 --interval 30
