@@ -1,1 +1,1 @@
-solana catchup --our-localhost --log --follow
+$execSolana catchup --our-localhost --log --follow

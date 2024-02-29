@@ -11,14 +11,17 @@ export execSolana=`which solana`
 export execSolanaValidator=`which solana-validator`
 export execSolanaKeygen=`which solana-keygen`
 export execSolanaWatchtower=`which solana-watchtower`
-export logPath="$HOME/snode/"
 
 # In case of using primary and secondary nodes, my naming is e.g.: mainnet-1, testnet-2 and etc..
 export networkType="mainnet"
 export nodeID="1"
 export rpcURL="http://localhost:8899"
 
+export logPath="$HOME/snode"
+export nodePath="$HOME/snode/$networkType"
+export ledgerPath="$HOME/snode/$networkType/ledger"
 export keysPath="$HOME/snode/sol-keys/$networkType-$nodeID"
+
 export validatorKeyFile="validator-keypair.json"
 export validatorKeyFileStaked="validator-staked-keypair.json"
 export validatorVoteAccountKeyFile="vote-account-keypair.json"
