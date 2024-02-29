@@ -8,4 +8,4 @@ scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
 echo
 
-solana stake-account $(cat $keysPath/selfstake-account.addr) --output json
+$execSolana stake-account $validatorSelfstakeAccountPubkey --output json
