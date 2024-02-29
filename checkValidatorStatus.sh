@@ -122,8 +122,8 @@ echo " Next:     $slotLeaderNext"
 echo " Next in:  $slotsDateToLeaderNextText"
 echo " Slots to: $slotsToLeaderNext"
 
-balanceValidator=`solana balance --url $rpcURL $validatorIdentityPubKey | awk '{print $1}' | jq '.*100|round/100'`
-balanceVoteAccount=`solana balance --url $rpcURL $validatorVoteAccountPubKey | awk '{print $1}' | jq '.*100|round/100'`
+balanceValidator=`${execSolana} balance --url $rpcURL $validatorIdentityPubKey | awk '{print $1}' | jq '.*100|round/100'`
+balanceVoteAccount=`${execSolana} balance --url $rpcURL $validatorVoteAccountPubKey | awk '{print $1}' | jq '.*100|round/100'`
 echo
 
 
@@ -141,7 +141,7 @@ compare() (IFS=" "
 echo " Vote account: $balanceVoteAccount"
 
 	if  [[ "$networkType" == "mainnet" ]]; then
-		balanceSelfStaked=`$scriptPath/getStake.sh | jq .activeStake | jq './10000000|round/100'`
+		balanceSelfStaked=`${execSolana} stake-account $validatorSelfstakeAccountPubkey --output json | jq .activeStake | jq './10000000|round/100'`
 		balanceSelfStakedUSDT=`echo $balanceSelfStaked | jq ".*$solanaPrice|round"`
 		echo " Total staked: $validatorActivatedStake"
                 echo " SOL/USDT:     $colorGreen$solanaPrice$colorEnd"

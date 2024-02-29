@@ -1,1 +1,1 @@
-solana-validator --ledger ~/snode/ledger/ monitor
+solana-validator --ledger ~/snode/testnet/ledger/ monitor
