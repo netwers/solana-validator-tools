@@ -33,7 +33,7 @@ slotLeaderNext=`echo $slotLeaderSchedule | jq -r '[.result[][] | select (. > '$s
 		slotsDateToLeaderNextText="n/a"
 	else
 		slotsToLeaderNext=$((slotLeaderNext - slotIndex))
-		slotsSecondsToLeaderNext=$(($slotsToLeaderNext * 460 / 1000))
+		slotsSecondsToLeaderNext=$(($slotsToLeaderNext * 420 / 1000))
 		slotsMinutesToLeaderNext=$((slotsSecondsToLeaderNext / 60))
 		unixTimeNow=`date +%s`
 		slotsUnixtimeToLeaderNext=$((unixTimeNow + slotsSecondsToLeaderNext))
@@ -54,7 +54,7 @@ versionsCheck="$colorRed❌$colorEnd"
 		versionsCheck="$colorGreen✅$colorEnd"
 	fi
 
-#echo  "Network:     $networkType ($rpcURL)"
+echo  "Network:     $networkType" #($rpcURL)"
 echo  "Version:     $validatorVersionLocal (local) $versionsCheck $validatorVersionNet (network)"
 echo  "Validator:   $validatorIdentityPubKey"
 echo  "Vote:        $validatorVoteAccountPubKey"

@@ -20,6 +20,7 @@ export rpcURL="http://localhost:8899"
 export logPath="$HOME/snode"
 export nodePath="$HOME/snode/$networkType"
 export ledgerPath="$HOME/snode/$networkType/ledger"
+export snapshotsPath="$HOME/snode/$networkType/snapshots"
 export keysPath="$HOME/snode/sol-keys/$networkType-$nodeID"
 
 export validatorKeyFile="validator-keypair.json"
