@@ -11,17 +11,21 @@ export execSolana=`which solana`
 export execSolanaValidator=`which solana-validator`
 export execSolanaKeygen=`which solana-keygen`
 export execSolanaWatchtower=`which solana-watchtower`
+export execSolanaLedgerTool=`which solana-ledger-tool`
 
 # In case of using primary and secondary nodes, my naming is e.g.: mainnet-1, testnet-2 and etc..
 export networkType="mainnet"
 export nodeID="1"
 export rpcURL="http://localhost:8899"
+configJsonRpcUrl=`${execSolana} config get json_rpc_url | awk '{print $3}'`
+configWebsocketUrl=`${execSolana} config get websocket_url | awk '{print $3}'`
 
 export logPath="$HOME/snode"
 export nodePath="$HOME/snode/$networkType"
 export ledgerPath="$HOME/snode/$networkType/ledger"
 export snapshotsPath="$HOME/snode/$networkType/snapshots"
 export keysPath="$HOME/snode/sol-keys/$networkType-$nodeID"
+ledgerClusterType=`${execSolanaLedgerTool} -l $ledgerPath genesis | grep -i cluster | awk '{print $3}'`
 
 export validatorKeyFile="validator-keypair.json"
 export validatorKeyFileStaked="validator-staked-keypair.json"
@@ -31,17 +35,31 @@ export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$vali
 export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
 export validatorSelfstakeAccountPubkey=`cat $keysPath/selfstake-account.addr`
 
-	if  [[ "$networkType" == "testnet" ]]; then
-		export SOLANA_METRICS_CONFIG="host=https://metrics.solana.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea"
-		$execSolana config set --url https://api.testnet.solana.com
-		$execSolana config set --keypair $keysPath/$validatorKeyFile
+
+
+	if  [[ "$networkType" == "testnet" && "$ledgerClusterType" == "Testnet" ]]; then
+
+		if [[ "$configJsonRpcUrl" == *"testnet"* && "$configWebsocketUrl" == *"testnet"* ]]; then
+                        echo "Config is okay - $networkType!"
+		else
+			export SOLANA_METRICS_CONFIG="host=https://metrics.solana.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea"
+			$execSolana config set --url https://api.testnet.solana.com
+			$execSolana config set --keypair $keysPath/$validatorKeyFile
+		fi
 	fi
 
-	if  [[ "$networkType" == "mainnet" ]]; then
+
+	if  [[ "$networkType" == "mainnet" && "$ledgerClusterType" == "MainnetBeta" ]]; then
+
 		export solanaPrice=$(curl -sf --insecure --connect-timeout 2 'https://api.margus.one/solana/price/' | jq -r .price | jq '.*1000|round/1000')
-		export SOLANA_METRICS_CONFIG="host=https://metrics.solana.com:8086,db=mainnet-beta,u=mainnet-beta_write,p=password"
-		$execSolana config set --url https://api.mainnet-beta.solana.com
-		$execSolana config set --keypair $keysPath/$validatorKeyFile
+
+		if [[ "$configJsonRpcUrl" == *"mainnet"* && "$configWebsocketUrl" == *"mainnet"* ]]; then
+			echo "Config is okay - $networkType!"
+		else
+			export SOLANA_METRICS_CONFIG="host=https://metrics.solana.com:8086,db=mainnet-beta,u=mainnet-beta_write,p=password"
+			$execSolana config set --url https://api.mainnet-beta.solana.com
+			$execSolana config set --keypair $keysPath/$validatorKeyFile
+		fi	
 	fi
 	
 
