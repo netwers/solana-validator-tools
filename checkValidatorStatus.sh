@@ -150,6 +150,6 @@ echo " Vote account: $balanceVoteAccount"
 
 unixtime=`date +%s`;
 echo
-echo "$unixtime $epochNumber $epochProgress $slotsScheduled $slotsBuilt $slotsSkipped $slotsRemaining $balanceValidator $balanceVoteAccount" >> $logPath/balances-$networkType.log
+echo "$unixtime $epochNumberCurrent $epochProgress $slotsScheduled $slotsBuilt $slotsSkipped $slotsRemaining $balanceValidator $balanceVoteAccount" >> $logPath/balances-$networkType.log
 date
 echo
