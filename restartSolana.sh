@@ -13,4 +13,5 @@ sudo echo "Thanks!"
 echo ""
 echo "Restarting solana..."
 echo ""
-$execSolanaValidator --ledger $ledgerPath wait-for-restart-window --max-delinquent-stake 5  --min-idle-time 70 && sudo systemctl stop solana.service && sudo systemctl start solana.service
+$execSolanaValidator --ledger $ledgerPath wait-for-restart-window --max-delinquent-stake 5  --min-idle-time 70 && sudo systemctl stop solana.service
+#&& sudo systemctl start solana.service
