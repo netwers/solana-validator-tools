@@ -10,6 +10,11 @@ echo
 date
 echo
 
-validatorIdentityPubKey="3kiyzZdvgkxhkef8v8cgbWe7JJ6a7NyNDpXMPnEUpb7x"
+        if [[ -z $1 ]]; then
+		echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."
+                echo "Usage: $0 <vote-account-addr>"
+        else
+                validatorIdentityPubKey=$1
+        fi
 
 $execSolana validators --output=json | jq ".validators[] | select(.identityPubkey==\"$validatorIdentityPubKey\")"
