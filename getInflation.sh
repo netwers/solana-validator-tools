@@ -22,5 +22,5 @@ echo
 date
 echo
 
-solana inflation rewards $validatorVoteAccountPubKey --rewards-epoch $epochNumber
+$execSolana inflation rewards $validatorVoteAccountPubKey --rewards-epoch $epochNumber
 
