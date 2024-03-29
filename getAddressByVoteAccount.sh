@@ -10,7 +10,7 @@ source "${scriptPath}/env.sh"
 
 	if [[ -z $1 ]]; then
 		echo "Vote account unspecified. I gonna use $validatorVoteAccountPubKey from env.sh instead."
-		echo "Usage: $0 <vote-account-addr>"
+		echo "Usage: $0 <vote_account_addr>"
 	else
 		validatorVoteAccountPubKey=$1
 	fi

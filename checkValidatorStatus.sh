@@ -6,6 +6,14 @@
 
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
+
+        if [[ -z $1 ]]; then
+                echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."
+                echo "Usage: $0 <validator_identity_pubkey>"
+        else
+                validatorIdentityPubKey=$1
+        fi
+
 echo
 date
 echo
@@ -47,7 +55,7 @@ validatorJSON=`echo $validatorsJSON | jq '.validators[] | select(.identityPubkey
 validatorVersionLocal=`${execSolanaValidator} --version | awk '{print $2}'`
 validatorVersionNet=`echo $validatorJSON | jq .version | tr -d '"'`
 validatorActivatedStake=`echo $validatorJSON | jq '.activatedStake / 1000000000 | round'`
-
+validatorDelinquent=`echo $validatorJSON | jq '.delinquent'`
 versionsCheck="$colorRed❌$colorEnd"
 
 	if [[ "$validatorVersionLocal" == "$validatorVersionNet" ]];then
@@ -110,10 +118,18 @@ echo " Skip net:  $skipPercentTotal%"
 echo ""
 
 validatorCreditsTotal=`${execSolana} vote-account --url $rpcURL $validatorVoteAccountPubKey --output=json | jq .epochVotingHistory[-1].creditsEarned`
-echo " Credits:   ${validatorCreditsTotal}"
+echo " Credits:    ${validatorCreditsTotal}"
 validatorPosition=`${execSolana} validators --url $rpcURL --sort=credits -r -n | grep  -e $validatorIdentityPubKey | awk '{print $1}'`
 validatorsPositions=`${execSolana} validators --url $rpcURL --sort=credits -r -n | grep SOL -c`
-echo " Position:  $validatorPosition / $validatorsPositions"
+echo " Position:   $validatorPosition / $validatorsPositions"
+echo -n " Delinquent: "
+
+	if [[ "$validatorDelinquent" == "false" ]]; then
+		echo "$colorGreen$validatorDelinquent$colorEnd"
+	else
+		echo "$colorRed$validatorDelinquent$colorEnd"
+	fi
+
 echo ""
 
 echo "Slots:"

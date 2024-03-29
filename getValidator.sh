@@ -12,7 +12,7 @@ echo
 
         if [[ -z $1 ]]; then
 		echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."
-                echo "Usage: $0 <vote-account-addr>"
+                echo "Usage: $0 <validator_identity_pubkey>"
         else
                 validatorIdentityPubKey=$1
         fi
