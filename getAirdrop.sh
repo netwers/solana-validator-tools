@@ -14,7 +14,7 @@ echo Result: $airdropSignature
 echo
 
         if [[ ! -z $airdropSignature ]]; then
-                $execSolana confirm -v $airdropSignature
+                $execSolana confirm -v $airdropSignature -k $keysPath/$validatorKeyFile
         else echo "Airdrop failed"
         fi
 
