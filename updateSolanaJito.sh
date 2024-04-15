@@ -37,4 +37,7 @@ echo ""
 echo "Checking..."
 which solana
 solana -V
-
+echo
+echo "Do not forget to add into you ~/.profile:"
+echo "export PATH="$HOME/.local/share/solana/install/active_release-jito/bin:$PATH""
+echo ""
