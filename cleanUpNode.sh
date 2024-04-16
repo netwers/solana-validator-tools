@@ -66,6 +66,10 @@ date
 			rm -rf $accounts_hash_cachePath/*
 			echo "[$colorGreen OK $colorEnd]"
 
+                        echo -n "Removing accounts index... ";
+                        rm -rf $accounts_indexPATH/*
+                        echo "[$colorGreen OK $colorEnd]"
+
 			echo -n "Removing ledger... ";
 			rm -rf $ledgerPath/*
 			echo "[$colorGreen OK $colorEnd]"
