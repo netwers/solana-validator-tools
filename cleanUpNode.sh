@@ -42,6 +42,9 @@ date
 				
 					if [[ "$systemSolanaServiceStatus" == "failed" ]]; then
 						echo "[$colorGreen OK $colorEnd]"
+					else
+						echo "Service $systemSolanaService is still running, can not to proceed."
+						exit 0
 					fi
 			fi
 
