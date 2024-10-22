@@ -9,13 +9,13 @@ source "${scriptPath}/env.sh"
 echo
 date
 
-	if [ "$EUID" -ne 0 ]
-	  then echo "Please run this script as root"
-	  exit
-	fi
-
+#	if [ "$EUID" -ne 0 ]
+#	  then echo "Please run this script as root"
+#	  exit
+#	fi
 #echo "Please, do sudo =>"
 #sudo echo "Thanks!"
+
 echo
 
 	if [[ -z $systemSolanaService ]] || [[ "$execSolanaValidator" == "" ]]; then
@@ -47,7 +47,7 @@ echo
 
 	echo "Preparing for Solana validator restart..."
 	echo ""
-	$execSolanaValidator --ledger $ledgerPath wait-for-restart-window --max-delinquent-stake $max_delinquent_stake --min-idle-time $min_idle_time && systemctl stop $systemSolanaService && systemctl start $systemSolanaService
+	sudo $execSolanaValidator --ledger $ledgerPath wait-for-restart-window --max-delinquent-stake $max_delinquent_stake --min-idle-time $min_idle_time && systemctl stop $systemSolanaService && systemctl start $systemSolanaService
 
 	fi
 
