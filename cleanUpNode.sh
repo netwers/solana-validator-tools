@@ -70,7 +70,7 @@ date
 			echo "[$colorGreen OK $colorEnd]"
 
                         echo -n "Removing accounts index... ";
-                        rm -rf $accounts_indexPATH/*
+                        rm -rf $accounts_indexPath/*
                         echo "[$colorGreen OK $colorEnd]"
 
 			echo -n "Removing ledger... ";

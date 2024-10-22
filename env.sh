@@ -31,7 +31,7 @@ export ledgerPath="$validatorPath/ledger"
 export snapshotsPath="$validatorPath/snapshots"
 export accountsPath="$validatorPath/accounts"
 export accounts_hash_cachePath="$validatorPath/accounts_hash_cache"
-export accounts_indexPATH="$ledgerPath/accounts_index"
+export accounts_indexPath="$ledgerPath/accounts_index"
 export keysPath="$nodePath/sol-keys/$networkType-$nodeID"
 #ledgerClusterType=`${execSolanaLedgerTool} -l $ledgerPath genesis | grep -i cluster | awk '{print $3}'`
 
