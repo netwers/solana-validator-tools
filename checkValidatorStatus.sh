@@ -52,11 +52,20 @@ slotLeaderNext=`echo $slotLeaderSchedule | jq -r '[.result[][] | select (. > '$s
 # Let's generate actual validators json
 validatorsJSON=`${execSolana} validators --output=json`
 validatorJSON=`echo $validatorsJSON | jq '.validators[] | select(.identityPubkey=="'$validatorIdentityPubKey'")'`
+gossipsJSON=`${execSolana} gossip --output=json`
+gossipJSON=`echo $gossipsJSON | jq '.[] | select(.identityPubkey=="'$validatorIdentityPubKey'")'`
+gossipVersion=`echo $gossipJSON | jq .version | tr -d '"'`
+gossipIPAdress=`echo $gossipJSON | jq .ipAddress | tr -d '"'`
 validatorVersionLocal=`${execSolanaValidator} --version | awk '{print $2}'`
 validatorVersionNet=`echo $validatorJSON | jq .version | tr -d '"'`
 validatorActivatedStake=`echo $validatorJSON | jq '.activatedStake / 1000000000 | round'`
 validatorDelinquent=`echo $validatorJSON | jq '.delinquent'`
 versionsCheck="$colorRed❌$colorEnd"
+
+	if [[ -z $validatorVersionNet ]]; then
+		validatorVersionNet=$gossipVersion
+	fi
+
 
 	if [[ "$validatorVersionLocal" == "$validatorVersionNet" ]];then
 		versionsCheck="$colorGreen✅$colorEnd"
@@ -77,7 +86,7 @@ echo " Number: $epochNumberCurrent"
 echo " Completed: $epochProgress"
 
 slotsScheduled=`${execSolana} leader-schedule | grep $validatorIdentityPubKey | wc -l`
-slotsBuilt=`${execSolana} block-production --url $rpcURL | grep -e $validatorIdentityPubKey | awk '{print $ 2}'`
+slotsBuilt=`${execSolana} block-production --url $rpcURL | grep -e $validatorIdentityPubKey | awk '{print $2}'`
 
 	if [[ ! -z $slotsBuit ]] || [[ "$slotsBuilt" == "" ]];then
 		slotsBuilt=0
