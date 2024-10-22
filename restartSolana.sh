@@ -47,7 +47,7 @@ echo
 
 	echo "Preparing for Solana validator restart..."
 	echo ""
-	sudo $execSolanaValidator --ledger $ledgerPath wait-for-restart-window --max-delinquent-stake $max_delinquent_stake --min-idle-time $min_idle_time && systemctl stop $systemSolanaService && systemctl start $systemSolanaService
+	sudo $execSolanaValidator --ledger $ledgerPath wait-for-restart-window --max-delinquent-stake $max_delinquent_stake --min-idle-time $min_idle_time && sudo systemctl stop $systemSolanaService && sudo systemctl start $systemSolanaService
 
 	fi
 
