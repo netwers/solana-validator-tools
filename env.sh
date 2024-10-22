@@ -16,8 +16,9 @@ export execSolanaLedgerTool=`which solana-ledger-tool`
 
 # In case of using primary and secondary nodes, my naming is e.g.: mainnet-1, testnet-2 and etc..
 export systemHostname=`hostname -s`
-export systemSolanaService="solana.service" #in my case of testnet: solana-testnet.service. Will add a rule.
 export networkType="mainnet"
+export systemSolanaService="solana-$networkType.service" #in my case of testnet: solana-testnet.service. Will add a rule.
+
 export nodeID="1"
 export rpcURL="http://localhost:8899"
 configJsonRpcUrl=`${execSolana} config get json_rpc_url | awk '{print $3}'`
@@ -30,7 +31,7 @@ export ledgerPath="$validatorPath/ledger"
 export snapshotsPath="$validatorPath/snapshots"
 export accountsPath="$validatorPath/accounts"
 export accounts_hash_cachePath="$validatorPath/accounts_hash_cache"
-export accounts_indexPATH="$validatorPath/accounts_index"
+export accounts_indexPATH="$ledgerPath/accounts_index"
 export keysPath="$nodePath/sol-keys/$networkType-$nodeID"
 #ledgerClusterType=`${execSolanaLedgerTool} -l $ledgerPath genesis | grep -i cluster | awk '{print $3}'`
 
