@@ -149,6 +149,7 @@ echo " Slots to: $slotsToLeaderNext"
 
 balanceValidator=`${execSolana} balance --url $rpcURL $validatorIdentityPubKey | awk '{print $1}' | jq '.*100|round/100'`
 balanceVoteAccount=`${execSolana} balance --url $rpcURL $validatorVoteAccountPubKey | awk '{print $1}' | jq '.*100|round/100'`
+balanceBondMarinade=`${execSolana} balance --url $rpcURL $validatorBondMarinadePubkey | awk '{print $1}' | jq '.*100|round/100'`
 echo
 
 
@@ -164,6 +165,12 @@ compare() (IFS=" "
 	fi
 
 echo " Vote account: $balanceVoteAccount"
+
+        if compare "$balanceBondMarinade < 1"; then
+                echo " Bond:         $colorRed$balanceBondMarinade$colorEnd"
+                else echo " Bond:         $balanceBondMarinade"
+        fi
+
 
 	if  [[ "$networkType" == "mainnet" ]]; then
 		balanceSelfStaked=`${execSolana} stake-account $validatorSelfstakeAccountPubkey --output json | jq .activeStake | jq './10000000|round/100'`

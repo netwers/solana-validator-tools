@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+shopt -u progcomp
 export scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 
 export colorRed=$'\e[1;31m'
@@ -9,10 +9,10 @@ export colorBlue=$'\e[1;34m'
 export colorEnd=$'\e[0m'
 
 export execSolana=`which solana`
-export execSolanaValidator=`which solana-validator`
+export execSolanaValidator=`which agave-validator`
 export execSolanaKeygen=`which solana-keygen`
 export execSolanaWatchtower=`which solana-watchtower`
-export execSolanaLedgerTool=`which solana-ledger-tool`
+export execSolanaLedgerTool=`which agave-ledger-tool`
 
 # In case of using primary and secondary nodes, my naming is e.g.: mainnet-1, testnet-2 and etc..
 export systemHostname=`hostname -s`
@@ -31,7 +31,7 @@ export ledgerPath="$validatorPath/ledger"
 export snapshotsPath="$validatorPath/snapshots"
 export accountsPath="$validatorPath/accounts"
 export accounts_hash_cachePath="$validatorPath/accounts_hash_cache"
-export accounts_indexPath="$ledgerPath/accounts_index"
+export accounts_indexPath="$validatorPath/accounts_index"
 export keysPath="$nodePath/sol-keys/$networkType-$nodeID"
 #ledgerClusterType=`${execSolanaLedgerTool} -l $ledgerPath genesis | grep -i cluster | awk '{print $3}'`
 
@@ -42,9 +42,10 @@ export validatorIdentityPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorK
 export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFileStaked`
 export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
 export validatorSelfstakeAccountPubkey=`cat $keysPath/selfstake-account.addr`
+export validatorBondMarinadePubkey=`cat $keysPath/bond-marinade.addr`
 
 echo
-echo -n "Checking config... "
+echo -ne "Checking config ... "
 
 #        if  [[ "$networkType" == "testnet" && "$ledgerClusterType" == "Testnet" ]]; then
 	if  [[ "$networkType" == "testnet" ]]; then

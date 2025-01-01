@@ -194,7 +194,7 @@ isLocalServerExist=$(echo $serversList | jq  '.[] | select (.serverName=="'$syst
 
 	else
 		echo "[$colorGreen FOUND $colorEnd]"
-		echo -n "Checking .localServer value ..."
+		echo -n "Checking .localServer value ... "
 		result=""
 		result=$(echo $serversList | jq -r '.[] | select (.serverName=="'$systemHostname'").localServer')
 
@@ -286,7 +286,7 @@ c=0
 
 			if [[ "$serverLocalServer" != "true" ]]; then
 
-				if [[ "$serverSSHCertPath" == "false" ]] || [[ "$serverSSHCertPath" == "" ]] || [[ "$serverSSHCertPath" == null ]] ; then
+				if [[ "$serverSSHCertPath" == "false" ]] || [[ "$serverSSHCertPath" == "" ]] || [[ "$serverSSHCertPath" == null ]] || [ ! -f "$sshCertsPath/$serverName/$sshCertFileName" ] ; then
 
 					echo "[$colorRed N/A $colorEnd]"
 					echo -n " Searching cert/key file $sshCertFileName in $sshCertsPath/$serverName ... "

@@ -18,5 +18,8 @@ echo ""
 rpcIPAddress="185.81.65.80"
 rpcURL="http://$rpcIPAddress"
 
-wget -P $snapshotsPath --content-disposition $rpcURL/snapshot.tar.bz2 && wget -P $snapshotsPath --content-disposition $rpcURL/incremental-snapshot.tar.bz2 && sudo service solana start && $execSolanaValidator --ledger $ledgerPath monitor
+wget -P $validatorPath/snapshots/ --content-disposition $rpcURL/snapshot.tar.bz2 && \
+	wget -P $validatorPath/incremental_snapshots/ --content-disposition $rpcURL/incremental-snapshot.tar.bz2 && \
+	sudo service $systemSolanaService start && \
+	$execSolanaValidator --ledger $ledgerPath monitor
 

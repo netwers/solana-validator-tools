@@ -9,4 +9,5 @@ source "${scriptPath}/env.sh"
 echo
 date
 echo
-$execSolana vote-update-commission $keysPath/$validatorVoteAccountKeyFile 0 withdraw-authority.json --keypair $keysPath/$validatorKeyFileStaked
+
+validator-bonds -um show-bond $validatorVoteAccountPubKey
