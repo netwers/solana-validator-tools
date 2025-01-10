@@ -9,7 +9,7 @@ source "${scriptPath}/env.sh"
 
 targetUsername="user"
 targetIPAddress="0.0.0.0"
-targetSSHport=22
+targetSSHport="22"
 targetLedgerPath=$ledgerPath # Your remote machine's ledger path, e.g.: /home/user/solana/ledger/
 
 echo Trasnfering tower- file:
