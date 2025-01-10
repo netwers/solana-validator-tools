@@ -37,6 +37,8 @@ export keysPath="$nodePath/sol-keys/$networkType-$nodeID"
 
 export validatorKeyFile="validator-keypair.json"
 export validatorKeyFileStaked="validator-staked-keypair.json"
+export validatorKeyFileUnstaked1="validator-unstaked-1-keypair.json"
+export validatorKeyFileUnstaked2="validator-unstaked-2-keypair.json"
 export validatorVoteAccountKeyFile="vote-account-keypair.json"
 export validatorIdentityPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFile`
 export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFileStaked`
