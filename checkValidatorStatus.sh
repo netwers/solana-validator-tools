@@ -30,6 +30,11 @@ slotLeaderSchedule=`curl -s $rpcURL -X POST -H "Content-Type: application/json" 
     ]
   }'`
 
+
+epochInfo=`curl -s $rpcURL -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getEpochInfo"}'`
+slotAbsolute=`echo $epochInfo | jq .result.absoluteSlot`
+epochNumberCurrent=`echo $epochInfo | jq .result.epoch`
+slotIndex=`echo $epochInfo | jq .result.slotIndex`
 slotLeaderNext=`echo $slotLeaderSchedule | jq -r '[.result[][] | select (. > '$slotIndex')][0]'`
 
 	if [[ "$slotLeaderNext" == "null" ]];then
@@ -78,7 +83,6 @@ echo  "Vote:        $validatorVoteAccountPubKey"
 echo
 
 epoch=`${execSolana} epoch-info --url $rpcURL --output json`
-#epochNumber=`echo $epoch | jq .epoch`
 epochProgress=`${execSolana} epoch-info --url $rpcURL | grep "Epoch Completed Percent:" | awk '{print $4}'`
 
 echo "Epoch:"

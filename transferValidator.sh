@@ -7,7 +7,7 @@
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
 
-targetUsername="user"
+targetUsername="sshUser"
 targetIPAddress="0.0.0.0"
 targetSSHport="22"
 targetLedgerPath=$ledgerPath # Your remote machine's ledger path, e.g.: /home/user/solana/ledger/

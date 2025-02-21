@@ -18,6 +18,8 @@ echo
         else
                 version=$1
         fi
+# cd $HOME/snode/
+# git clone https://github.com/jito-foundation/jito-solana
 
 TAG="v${version}-jito"
 path="${version}-jito"
@@ -35,9 +37,9 @@ ln -s $HOME/.local/share/solana/install/releases/$path $HOME/.local/share/solana
 ls -lha $HOME/.local/share/solana/install/
 echo ""
 echo "Checking..."
-which solana
-solana -V
+which agave-validator
+agave-validator -V
 echo
 echo "Do not forget to add into you ~/.profile:"
-echo "export PATH="$HOME/.local/share/solana/install/active_release-jito/bin:$PATH""
+echo 'export PATH="$HOME/.local/share/solana/install/active_release-jito/bin:$PATH"'
 echo ""

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-shopt -u progcomp
+#shopt -u progcomp
 export scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 
 export colorRed=$'\e[1;31m'
@@ -20,7 +20,7 @@ export networkType="mainnet"
 export systemSolanaService="solana-$networkType.service" #in my case of testnet: solana-testnet.service. Will add a rule.
 
 export nodeID="1"
-export rpcURL="http://localhost:8899"
+export rpcURL="http://127.0.0.1:8899"
 configJsonRpcUrl=`${execSolana} config get json_rpc_url | awk '{print $3}'`
 configWebsocketUrl=`${execSolana} config get websocket_url | awk '{print $3}'`
 
@@ -29,11 +29,11 @@ export nodePath="$HOME/snode"
 export validatorPath="$nodePath/$networkType"
 export ledgerPath="$validatorPath/ledger"
 export snapshotsPath="$validatorPath/snapshots"
+export snapshotsIncrementalPath="$validatorPath/incremental_snapshots"
 export accountsPath="$validatorPath/accounts"
 export accounts_hash_cachePath="$validatorPath/accounts_hash_cache"
 export accounts_indexPath="$validatorPath/accounts_index"
 export keysPath="$nodePath/sol-keys/$networkType-$nodeID"
-#ledgerClusterType=`${execSolanaLedgerTool} -l $ledgerPath genesis | grep -i cluster | awk '{print $3}'`
 
 export validatorKeyFile="validator-keypair.json"
 export validatorKeyFileStaked="validator-staked-keypair.json"
@@ -77,7 +77,3 @@ echo -ne "Checking config ... "
 	fi
 	
 
-export epochInfo=`curl -s $rpcURL -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getEpochInfo"}'`
-export slotAbsolute=`echo $epochInfo | jq .result.absoluteSlot`
-export epochNumberCurrent=`echo $epochInfo | jq .result.epoch`
-export slotIndex=`echo $epochInfo | jq .result.slotIndex`

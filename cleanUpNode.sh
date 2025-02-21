@@ -17,6 +17,9 @@ date
 		if [[ -z $snapshotsPath ]]; then
 			echo "Snapshots path is not specified, please check it in env.sh file."
 			exit 0
+                if [[ -z $snapshotsIncrementalPath ]]; then
+                        echo "Snapshots path is not specified, please check it in env.sh file."
+                        exit 0			
 		fi
 		if [[ -z $accountsPath ]]; then
                         echo "Accounts path is not specified, please check it in env.sh file."
@@ -25,6 +28,10 @@ date
                 if [[ -z $accounts_hash_cachePath ]]; then
                         echo "Accounts hash cache path is not specified, please check it in env.sh file."
                         exit 0
+		fi
+		if [[ -z $accounts_indexPath ]]; then
+                        echo "Accounts path is not specified, please check it in env.sh file."
+                        exit 0			
                 fi
                 if [[ -z $ledgerPath ]]; then
                         echo "Ledger path is not specified, please check it in env.sh file."
@@ -53,6 +60,7 @@ date
 				[yY] ) echo -n "Removing snapshots... ";
 					echo "[$colorGreen OK $colorEnd]"
 					rm -rf $snapshotsPath/*
+					rm -rf $snapshotsIncrementalPath/*
 					;;
 
                                 [nN] ) echo "Proceeding without deleting snapshots...";
