@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Solana Validator simple console "dashboard" script by Netwers, 2021-2024.
+# Solana Validator failover and identity transition script by Netwers, 2021-2024.
 #
 #
 
@@ -31,7 +31,7 @@ destinationIPAddress=$(echo $serverList   | jq -r ".ipAddress")
 destinationSSHPort=$(echo $serverList     | jq -r ".sshPort")
 destinationUserName=$(echo $serverList    | jq -r ".serverUserName")
 destinationSSHCertPath=$(echo $serverList | jq -r ".sshCertPath")
-destinationLedgerPath=$ledgerPath # Your remote machine's ledger path, e.g.: /home/user/solana/ledger/. See env.sh.
+
 
 echo
 echo "I've got this for destination machine:"
@@ -43,7 +43,7 @@ echo " SSH cert path:    $destinationSSHCertPath"
 echo " ledger path:      $ledgerPath"
 echo
 
-echo -n "Initiating cached SSH- connection ... "
+echo -n "Destination: initiating cached SSH connection ... "
 execSSHRemote="ssh -p $destinationSSHPort -i $destinationSSHCertPath -f $destinationUserName@$destinationIPAddress"
 result=$($execSSHRemote 'echo "true" > ~/testSSHConnection && cat ~/testSSHConnection && rm -rf ~/testSSHConnection')
 
@@ -59,13 +59,26 @@ result=$($execSSHRemote 'echo "true" > ~/testSSHConnection && cat ~/testSSHConne
 
 
 execSSHRemote="ssh -p $destinationSSHPort -i $destinationSSHCertPath $destinationUserName@$destinationIPAddress"
-#result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && $scriptPath/checkValidatorStatus.sh $validatorIdentityPubKeyStaked > ~/snode/status.txt')
-echo -n "Destination: checking identity keypair ... "
-result=$($execSSHRemote "if [[ -e $keysPath/$validatorKeyFileStaked ]]; then echo 'true'; else echo 'false'; fi")
-#result=$($execSSHRemote 'source ~/.profile && agave-validator -V > ~/snode/status.txt')
+
+echo -n "Destination: getting validator binary path ... "
+result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $execSolanaValidator')
+
+        if [[ ! -z $result  ]]; then
+                echo "[$colorGreen $result $colorEnd]"
+                destinationExecSolanaValidator=$result
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check destination machine env.sh file and/or path and try again."
+                exit 0
+        fi
+
+echo -n "Destination: checking validator binary path ... "
+result=$($execSSHRemote "if [[ -e $destinationExecSolanaValidator ]]; then echo 'true'; else echo 'false'; fi")
 
         if [[ "$result" == "true" ]]; then
                 echo "[$colorGreen OK $colorEnd]"
+                result=""
         else
                 echo "[$colorRed FAILED $colorEnd]"
                 echo "Check keyfile on destination machine and/or path and try again."
@@ -73,33 +86,67 @@ result=$($execSSHRemote "if [[ -e $keysPath/$validatorKeyFileStaked ]]; then ech
         fi
 
 
+
 echo -n "Destination: getting ledger path ... "
-#result=$($execSSHRemote "if [[ -e /home/$destinationUserName/.local/share/solana/install/active_release-jito/bin/agave-validator ]]; then echo 'true'; else echo 'false'; fi")
 result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $ledgerPath')
 
-echo $result
+        if [[ ! -z $result  ]]; then
+                echo "[$colorGreen $result $colorEnd]"
+		destinationLedgerPath=$result
+		result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check destination machine env.sh file and/or path and try again."
+                exit 0
+        fi
+
+echo -n "Destination: checking ledger path ... "
+result=$($execSSHRemote "if [[ -e $destinationLedgerPath ]]; then echo 'true'; else echo 'false'; fi")
+
+        if [[ "$result" == "true" ]]; then
+                echo "[$colorGreen OK $colorEnd]"
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check keyfile on destination machine and/or path and try again."
+                exit 0
+        fi
+
+
+
+echo -n "Destination: getting identity path ... "
+result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $keysPath/$validatorKeyFileStaked')
+
+        if [[ ! -z $result  ]]; then
+                echo "[$colorGreen $result $colorEnd]"
+                destinationKeyFileStakedPath=$result
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check destination machine env.sh file and/or path and try again."
+                exit 0
+        fi
+
+echo -n "Destination: checking identity path ... "
+result=$($execSSHRemote "if [[ -e $destinationKeyFileStakedPath ]]; then echo 'true'; else echo 'false'; fi")
+
+        if [[ "$result" == "true" ]]; then
+                echo "[$colorGreen OK $colorEnd]"
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check keyfile on destination machine and/or path and try again."
+                exit 0
+        fi
+
+
 echo
-
-
-exit 0
-result=$($execSSHRemote "if [[ -e $ledgerPath ]]; then echo 'true'; else echo 'false'; fi")
-
-
-
-
-
-
-
-
-
-
-
-
-
+echo "Okay, i've got this command line: $destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath"
+echo "$colorGreen Looks like we're ready. Here we go!$colorEnd"
 
 unixTimeStarted=`date +%s.%N`
 
-echo -n "Changing local identity keypair symlink to unstaked one ... "
+echo -n "Local: setting identity keypair symlink to unstaked ... "
 #ln -sf $keysPath/$validatorKeyFileUnstaked $keysPath/$validatorKeyFile
 
         if [ $? -eq 0 ]; then
@@ -111,7 +158,19 @@ echo -n "Changing local identity keypair symlink to unstaked one ... "
         fi
 
 
-echo -n "Transfering tower- file ... "
+echo -n "Local: setting identity keypair to unstaked ... "
+#$execSolanaValidator -l $ledgerPath set-identity $keysPath/$validatorKeyFileUnstaked
+
+        if [ $? -eq 0 ]; then
+                echo "[$colorGreen OK $colorEnd]"
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check command line, connection and/or auth parameters and try again."
+                exit 0
+        fi
+
+
+echo -n "Transfering tower file ... "
 /usr/bin/rsync -a -e "ssh -p $destinationSSHPort" $ledgerPath/tower-1_9-$validatorIdentityPubKeyStaked.bin $destinationUserName@$destinationIPAddress:$destinationLedgerPath/
 
 	if [ $? -eq 0 ]; then
@@ -131,20 +190,8 @@ echo
 exit 0
 
 
-echo -n "Setting local validator identity to unstaked one ... "
-#$execSolanaValidator -l $ledgerPath set-identity $keysPath/$validatorKeyFileUnstaked
-
-        if [ $? -eq 0 ]; then
-                echo "[$colorGreen OK $colorEnd]"
-        else
-                echo "[$colorRed FAILED $colorEnd]"
-                echo "Check command line, connection and/or auth parameters and try again."
-                exit 0
-        fi
-
-
-echo -n "Setting local validator identity to staked ... "
-#result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && $execSolanaValidator -l $ledgerPath set-identity $keysPath/$validatorKeyFileStaked')
+echo -n "Destination: setting identity keypair to staked ... "
+#result=$($execSSHRemote "$destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath") 
 
         if [ $? -eq 0 ]; then
                 echo "[$colorGreen OK $colorEnd]"
@@ -159,3 +206,4 @@ unixTimeFinished=`date +%s.%N`
 secondsElapsed=`echo "$unixTimeFinished - $unixTimeStarted" | bc -l | jq '.*1000|round/1000'
 echo
 echo "Done!"
+echo
