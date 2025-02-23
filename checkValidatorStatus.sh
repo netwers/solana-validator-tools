@@ -17,6 +17,7 @@ source "${scriptPath}/env.sh"
 echo
 date
 echo
+solanaPrice=$(curl -sf --insecure --connect-timeout 2 'https://api.margus.one/solana/price/' | jq -r .price | jq '.*1000|round/1000')
 
 slotLeaderSchedule=`curl -s $rpcURL -X POST -H "Content-Type: application/json" -d '{
 "jsonrpc": "2.0",
@@ -29,7 +30,6 @@ slotLeaderSchedule=`curl -s $rpcURL -X POST -H "Content-Type: application/json" 
       }
     ]
   }'`
-
 
 epochInfo=`curl -s $rpcURL -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getEpochInfo"}'`
 slotAbsolute=`echo $epochInfo | jq .result.absoluteSlot`
@@ -83,6 +83,7 @@ echo  "Vote:        $validatorVoteAccountPubKey"
 echo
 
 epoch=`${execSolana} epoch-info --url $rpcURL --output json`
+#epochNumber=`echo $epoch | jq .epoch`
 epochProgress=`${execSolana} epoch-info --url $rpcURL | grep "Epoch Completed Percent:" | awk '{print $4}'`
 
 echo "Epoch:"
