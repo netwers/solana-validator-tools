@@ -7,7 +7,7 @@
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
 
-destinationIPAddress="70.34.254.112"
+destinationIPAddress="0.0.0.0"
 
 echo "Hello!"
 echo
@@ -40,7 +40,7 @@ echo " IP address:       $destinationIPAddress"
 echo " SSH port:         $destinationSSHPort"
 echo " userName:         $destinationUserName"
 echo " SSH cert path:    $destinationSSHCertPath"
-echo " ledger path:      $ledgerPath"
+#echo " ledger path:      $ledgerPath"
 echo
 
 echo -n "Destination: initiating cached SSH connection ... "
@@ -144,7 +144,6 @@ echo
 echo "Okay, i've got this command line: $destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath"
 echo "$colorGreen Looks like we're ready. Here we go!$colorEnd"
 
-unixTimeStarted=`date +%s.%N`
 
 echo -n "Local: setting identity keypair symlink to unstaked ... "
 #ln -sf $keysPath/$validatorKeyFileUnstaked $keysPath/$validatorKeyFile
@@ -158,6 +157,7 @@ echo -n "Local: setting identity keypair symlink to unstaked ... "
         fi
 
 
+unixTimeStarted=`date +%s.%N`
 echo -n "Local: setting identity keypair to unstaked ... "
 #$execSolanaValidator -l $ledgerPath set-identity $keysPath/$validatorKeyFileUnstaked
 
@@ -187,9 +187,6 @@ echo "Elapsed time: $secondsElapsed second(s)"
 echo
 
 
-exit 0
-
-
 echo -n "Destination: setting identity keypair to staked ... "
 #result=$($execSSHRemote "$destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath") 
 
@@ -203,7 +200,7 @@ echo -n "Destination: setting identity keypair to staked ... "
 
 
 unixTimeFinished=`date +%s.%N`
-secondsElapsed=`echo "$unixTimeFinished - $unixTimeStarted" | bc -l | jq '.*1000|round/1000'
+secondsElapsed=`echo "$unixTimeFinished - $unixTimeStarted" | bc -l | jq '.*1000|round/1000'`
 echo
 echo "Done!"
 echo

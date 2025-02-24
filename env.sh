@@ -1,5 +1,24 @@
 #!/usr/bin/env bash
 
+function die ()
+{
+    if [ -n "$1" ]; then
+        echo "$1"
+    fi
+
+    exit -1
+}
+
+function required ()
+{
+    which $1 1>/dev/null 2>/dev/null || die "ERROR: $1 required, but not found."
+}
+
+required solana
+required base64
+required jq
+required curl
+
 export scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 
 export colorRed=$'\e[1;31m'
