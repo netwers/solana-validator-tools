@@ -53,7 +53,7 @@ result=$($execSSHRemote 'echo "true" > ~/testSSHConnection && cat ~/testSSHConne
 	else 
 		echo "[$colorRed FAILED $colorEnd]"
 		echo "Check connection and/or auth parameters and try again."
-		exit 0
+		exit 1
 		fi
 
 
@@ -70,7 +70,7 @@ result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-to
         else
                 echo "[$colorRed FAILED $colorEnd]"
                 echo "Check destination machine env.sh file and/or path and try again."
-                exit 0
+                exit 1
         fi
 
 echo -n "Destination: checking validator binary path ... "
@@ -82,7 +82,7 @@ result=$($execSSHRemote "if [[ -e $destinationExecSolanaValidator ]]; then echo 
         else
                 echo "[$colorRed FAILED $colorEnd]"
                 echo "Check keyfile on destination machine and/or path and try again."
-                exit 0
+                exit 1
         fi
 
 
@@ -97,7 +97,7 @@ result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-to
         else
                 echo "[$colorRed FAILED $colorEnd]"
                 echo "Check destination machine env.sh file and/or path and try again."
-                exit 0
+                exit 1
         fi
 
 echo -n "Destination: checking ledger path ... "
@@ -109,25 +109,53 @@ result=$($execSSHRemote "if [[ -e $destinationLedgerPath ]]; then echo 'true'; e
         else
                 echo "[$colorRed FAILED $colorEnd]"
                 echo "Check keyfile on destination machine and/or path and try again."
-                exit 0
+                exit 1
         fi
 
 
 
-echo -n "Destination: getting identity path ... "
+
+echo -n "Destination: getting identity symlink path ... "
+result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $keysPath/$validatorKeyFile')
+
+        if [[ ! -z $result ]]; then
+                echo "[$colorGreen $result $colorEnd]"
+                destinationKeyFilePath=$result
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check destination machine env.sh file and/or path and try again."
+                exit 1
+        fi
+
+echo -n "Destination: checking identity symlink path ... "
+result=$($execSSHRemote "if [[ -e $destinationKeyFilePath ]]; then echo 'true'; else echo 'false'; fi")
+
+        if [[ "$result" == "true" ]]; then
+                echo "[$colorGreen OK $colorEnd]"
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check keyfile on destination machine and/or path and try again."
+                exit 1
+        fi
+
+
+
+echo -n "Destination: getting staked identity path ... "
 result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $keysPath/$validatorKeyFileStaked')
 
-        if [[ ! -z $result  ]]; then
+        if [[ ! -z $result ]]; then
                 echo "[$colorGreen $result $colorEnd]"
                 destinationKeyFileStakedPath=$result
                 result=""
         else
                 echo "[$colorRed FAILED $colorEnd]"
                 echo "Check destination machine env.sh file and/or path and try again."
-                exit 0
+                exit 1
         fi
 
-echo -n "Destination: checking identity path ... "
+echo -n "Destination: checking staked identity path ... "
 result=$($execSSHRemote "if [[ -e $destinationKeyFileStakedPath ]]; then echo 'true'; else echo 'false'; fi")
 
         if [[ "$result" == "true" ]]; then
@@ -136,17 +164,47 @@ result=$($execSSHRemote "if [[ -e $destinationKeyFileStakedPath ]]; then echo 't
         else
                 echo "[$colorRed FAILED $colorEnd]"
                 echo "Check keyfile on destination machine and/or path and try again."
-                exit 0
+                exit 1
+        fi
+
+
+
+echo -n "Destination: getting unstaked identity path ... "
+result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $keysPath/$validatorKeyFileUntaked')
+
+        if [[ ! -z $result ]]; then
+                echo "[$colorGreen $result $colorEnd]"
+                destinationKeyFileUnstakedPath=$result
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check destination machine env.sh file and/or path and try again."
+                exit 1
+        fi
+
+echo -n "Destination: checking unstaked identity path ... "
+result=$($execSSHRemote "if [[ -e $destinationKeyFileUnstakedPath ]]; then echo 'true'; else echo 'false'; fi")
+
+        if [[ "$result" == "true" ]]; then
+                echo "[$colorGreen OK $colorEnd]"
+                result=""
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check keyfile on destination machine and/or path and try again."
+                exit 1
         fi
 
 
 echo
-echo "Okay, i've got this command line: $destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath"
+echo "Destination: okay, i've got these command lines:"
+echo " $destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath"
+echo " ln -sf $destinationKeyFileStakedPath $destinationKeyFilePath"
 echo "$colorGreen Looks like we're ready. Here we go!$colorEnd"
 
 
+
 echo -n "Local: setting identity keypair symlink to unstaked ... "
-#ln -sf $keysPath/$validatorKeyFileUnstaked $keysPath/$validatorKeyFile
+ln -sf $keysPath/$validatorKeyFileUnstaked $keysPath/$validatorKeyFile
 
         if [ $? -eq 0 ]; then
                 echo "[$colorGreen OK $colorEnd]"
@@ -159,7 +217,7 @@ echo -n "Local: setting identity keypair symlink to unstaked ... "
 
 unixTimeStarted=`date +%s.%N`
 echo -n "Local: setting identity keypair to unstaked ... "
-#$execSolanaValidator -l $ledgerPath set-identity $keysPath/$validatorKeyFileUnstaked
+$execSolanaValidator -l $ledgerPath set-identity $keysPath/$validatorKeyFileUnstaked
 
         if [ $? -eq 0 ]; then
                 echo "[$colorGreen OK $colorEnd]"
@@ -187,8 +245,9 @@ echo "Elapsed time: $secondsElapsed second(s)"
 echo
 
 
+
 echo -n "Destination: setting identity keypair to staked ... "
-#result=$($execSSHRemote "$destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath") 
+result=$($execSSHRemote "$destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath") 
 
         if [ $? -eq 0 ]; then
                 echo "[$colorGreen OK $colorEnd]"
@@ -201,6 +260,23 @@ echo -n "Destination: setting identity keypair to staked ... "
 
 unixTimeFinished=`date +%s.%N`
 secondsElapsed=`echo "$unixTimeFinished - $unixTimeStarted" | bc -l | jq '.*1000|round/1000'`
+echo "Elapsed time: $secondsElapsed second(s)"
 echo
+
+
+
+echo -n "Destination: setting identity symlink to staked ... "
+result=$($execSSHRemote "ln -sf $destinationKeyFileStakedPath $destinationKeyFilePath")
+
+        if [ $? -eq 0 ]; then
+                echo "[$colorGreen OK $colorEnd]"
+        else
+                echo "[$colorRed FAILED $colorEnd]"
+                echo "Check command line, connection and/or auth parameters and try again."
+                exit 0
+        fi
+
+
+
 echo "Done!"
 echo
