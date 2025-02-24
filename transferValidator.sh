@@ -170,7 +170,7 @@ result=$($execSSHRemote "if [[ -e $destinationKeyFileStakedPath ]]; then echo 't
 
 
 echo -n "Destination: getting unstaked identity path ... "
-result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $keysPath/$validatorKeyFileUntaked')
+result=$($execSSHRemote 'source ~/.profile && source ~/snode/solana-validator-tools/env.sh && echo $keysPath/$validatorKeyFileUnstaked')
 
         if [[ ! -z $result ]]; then
                 echo "[$colorGreen $result $colorEnd]"
@@ -247,7 +247,7 @@ echo
 
 
 echo -n "Destination: setting identity keypair to staked ... "
-result=$($execSSHRemote "$destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath") 
+result=$($execSSHRemote "$destinationExecSolanaValidator -l $destinationLedgerPath set-identity --require-tower $destinationKeyFileStakedPath") 
 
         if [ $? -eq 0 ]; then
                 echo "[$colorGreen OK $colorEnd]"
