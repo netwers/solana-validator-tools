@@ -15,9 +15,13 @@ function required ()
 }
 
 required solana
+required agave-validator
 required base64
 required jq
+required bc
 required curl
+required rsync
+required ssh
 
 export scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 
@@ -67,6 +71,33 @@ export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$vali
 export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
 export validatorSelfstakeAccountPubkey=`cat $keysPath/selfstake-account.addr`
 export validatorBondMarinadePubkey=`cat $keysPath/bond-marinade.addr`
+
+
+function sendToTelegram()
+{
+	telegramBotConfigPath="$nodePath/telegramBotConfig.json"
+	telegramBotToken=$(cat $telegramBotConfigPath | jq '.telegramBotToken' | tr -d '"')
+	telegramChatID=$(cat   $telegramBotConfigPath | jq '.telegramChatID'   | tr -d '"')
+
+	messageTitle="$1"
+	messageBody="$2"
+
+	if [[ ! -z ${messageBody} ]]; then
+		messageJSON=$(echo "" | awk -v TITLE="$messageTitle" -v MESSAGE="*${messageTitle}* ${messageBody}" -v CHAT_ID="$telegramChatID" '{
+		print "{";
+	        print "     \"chat_id\" : " CHAT_ID ","
+        	print "     \"text\" : \"" MESSAGE "\","
+	        print "     \"parse_mode\" : \"markdown\","
+	        print "}";
+	    }')
+
+	   #echo $messageJSON
+	   curl -s -d "$messageJSON" -H "Content-Type: application/json" -X POST https://api.telegram.org/bot${telegramBotToken}/sendMessage
+   	else
+	   curl -s --data parse_mode=HTML --data chat_id=${telegramChatID} --data text="<b>${messageTitle}</b>%0A${messageBody}" --request POST https://api.telegram.org/bot${telegramBotToken}/sendMessage
+	fi
+}
+
 
 
 #echo -ne "Checking config ... "
