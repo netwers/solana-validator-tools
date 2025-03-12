@@ -7,7 +7,7 @@
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
 
-destinationIPAddress="0.0.0.0"
+destinationIPAddress="0.0.0.0" # ip address of your secondary/backup server
 
 echo "Hello!"
 echo
