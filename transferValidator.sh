@@ -197,10 +197,12 @@ result=$($execSSHRemote "if [[ -e $destinationKeyFileUnstakedPath ]]; then echo 
 
 echo
 echo "Destination: okay, i've got these command lines:"
-echo " $destinationExecSolanaValidator -l $destinationLedgerPath set-identity $destinationKeyFileStakedPath"
+echo " $destinationExecSolanaValidator -l $destinationLedgerPath set-identity --require-tower $destinationKeyFileStakedPath"
 echo " ln -sf $destinationKeyFileStakedPath $destinationKeyFilePath"
 echo "$colorGreen Looks like we're ready. Here we go!$colorEnd"
-
+echo
+read -p "Press enter to continue"
+echo
 
 
 echo -n "Local: setting identity keypair symlink to unstaked ... "
@@ -229,7 +231,7 @@ $execSolanaValidator -l $ledgerPath set-identity $keysPath/$validatorKeyFileUnst
 
 
 echo -n "Transfering tower file ... "
-/usr/bin/rsync -a -e "ssh -p $destinationSSHPort" $ledgerPath/tower-1_9-$validatorIdentityPubKeyStaked.bin $destinationUserName@$destinationIPAddress:$destinationLedgerPath/
+/usr/bin/rsync -a -e "ssh -p $destinationSSHPort -i $destinationSSHCertPath" $ledgerPath/tower-1_9-$validatorIdentityPubKeyStaked.bin $destinationUserName@$destinationIPAddress:$destinationLedgerPath/
 
 	if [ $? -eq 0 ]; then
 		echo "[$colorGreen OK $colorEnd]"

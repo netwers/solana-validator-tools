@@ -6,7 +6,7 @@ function die ()
         echo "$1"
     fi
 
-    exit -1
+#    exit -1
 }
 
 function required ()
