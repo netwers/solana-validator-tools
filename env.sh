@@ -49,8 +49,9 @@ export rpcURL="http://localhost:8899"
 configJsonRpcUrl=`${execSolana} config get json_rpc_url | awk '{print $3}'`
 configWebsocketUrl=`${execSolana} config get websocket_url | awk '{print $3}'`
 
-export logPath="$HOME/snode"
 export nodePath="$HOME/snode"
+export logPath=$nodePath
+export logFile="journal.log"
 export validatorPath="$nodePath/$networkType"
 export ledgerPath="$validatorPath/ledger"
 export snapshotsPath="$validatorPath/snapshots"
@@ -71,6 +72,91 @@ export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$vali
 export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
 export validatorSelfstakeAccountPubkey=`cat $keysPath/selfstake-account.addr`
 export validatorBondMarinadePubkey=`cat $keysPath/bond-marinade.addr`
+
+
+# functions
+
+function checkConnectionInternet()
+{
+	local result=false
+	local hosts=("1.1.1.1" "79.174.71.189" "www.noc.org")
+
+	for host in "${hosts[@]}"; do
+		ping -c1 $host &> /dev/null
+		if [[ $? -eq 0 ]]; then
+			result=true
+			echo $result
+			return
+		fi
+	done
+
+	echo $result
+	return
+}
+
+
+function checkConnectionHost()
+{
+	local host=$1
+	#echo -n "Checking connection to $host... "
+
+	ping -c2 $host &> /dev/null
+		if [[ $? -eq 0 ]]; then
+			result=true
+		else
+			result=false
+		fi
+
+	echo $result
+	return
+}
+
+
+function sendToLog()
+{
+	echo -n "Checking log path ... "
+
+		if [ -d "$logPath" ]; then
+			echo "[$colorGreen OK $colorEnd]"
+		else
+			echo "[$colorRed FAILED $colorEnd]"
+			echo -n "First run? Creating log path ... "
+			mkdir -p $logPath
+			result=$?
+			
+				if [ $result -eq 0 ]; then
+					echo "[$colorGreen OK $colorEnd]"
+				else
+					echo "[$colorRed FAILED $colorEnd]"
+					echo "Check path, permissions, disk space and try again. Code: $result"
+					sendToTelegram "$BASH_SOURCE:$FUNCNAME" "ERROR ($result): Couldn't create log path."
+					exit $result
+				fi
+		fi
+
+	echo -n "Checking log file ... "
+
+		if [ -f $logPath/$logFile ]; then
+			echo "[$colorGreen OK $colorEnd]"
+		else
+			echo "[$colorRed FAILED $colorEnd]"
+	                echo -n "First run? Creating log path ... "
+	                touch $logPath/$logFile
+			result=$?
+
+	                        if [ $result -eq 0 ]; then
+        	                        echo "[$colorGreen OK $colorEnd]"
+                	        else
+                        	        echo "[$colorRed FAILED $colorEnd]"
+	                                echo "Check file, permissions, disk space and try again. Code: $result"
+	                                sendToTelegram "$BASH_SOURCE:$FUNCNAME" "ERROR ($result): Couldn't create log file."
+	                                exit $result
+	                        fi
+		fi
+
+	dateTimeNow=`date +"%Y-%m-%d %H:%M:%S"`
+	echo "$dateTimeNow $systemHostname $BASH_SOURCE:$FUNCNAME $1 $2" >> $logPath/$logFile
+}
 
 
 function sendToTelegram()
