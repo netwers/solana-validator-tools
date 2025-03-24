@@ -7,60 +7,6 @@
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
 
-execNmap=`which nmap`
-serversListFile="serversList.json"
-serversListFilePath="$nodePath/$serversListFile"
-sshCertsPath="$nodePath/ssh-certs"
-sshCertFileName="id_rsa"
-
-function checkConnectionInternet()
-{
-	local result=false
-	local hosts=("1.1.1.1" "79.174.71.189" "www.noc.org")
-	
-	for host in "${hosts[@]}"; do
-		ping -c1 $host &> /dev/null
-		if [[ $? -eq 0 ]]; then
-			result=true
-			echo $result
-			return
-		fi
-	done
-
-	echo $result
-	return
-#    # connection losses counter
-#    if [ "$connection" = false ]; then
-#        let DISCONNECT_COUNTER=DISCONNECT_COUNTER+1
-#        echo "connection failed, attempt "$DISCONNECT_COUNTER
-#    else
-#        DISCONNECT_COUNTER=0
-#    fi
-#
-#    # connection loss for 20 seconds (5sec * 4)
-#    if [ $DISCONNECT_COUNTER -ge 4 ]; then
-#        echo "CONNECTION LOSS"
-#        #bash "$CONNECTION_LOSS_SCRIPT"
-#        #systemctl restart solana && echo -e "\033[31m restart solana \033[0m"
-#    fi	
-}
-
-function checkConnectionHost()
-{
-	local host=$1
-	#echo -n "Checking connection to $host... "
-
-	ping -c2 $host &> /dev/null
-		if [[ $? -eq 0 ]]; then
-			result=true
-		else
-			result=false
-		fi
-
-	echo $result
-	return
-}
-
 echo
 date +"%Y-%m-%d %H:%M:%S"
 echo
@@ -89,8 +35,6 @@ echo -n "Checking paths ... "
 
 
 echo -n "Gathering local server data ... "
-systemIPAddress=$(curl -sf --insecure --connect-timeout 2 'https://netwers.com/')
-systemSSHPort=$(cat /etc/ssh/sshd_config | grep -iw port | awk '{print $2}')
 
         if [[ -z $systemIPAddress ]]; then
 		echo "[$colorRed FAILED (IP) $colorEnd]"
@@ -348,10 +292,7 @@ c=0
 								read -p " Do you want to configure sshd server on this server and generate ssh cert/key? (y/n) " yn
 								case $yn in
 									[yY] ) echo " Using server username: [$colorGreen $serverUserName $colorEnd]"
-										#read -p " Enter username for ssh connection to $serverName: " serverUserName
-										#echo " Username: [$colorGreen $serverUserName $colorEnd]"
 
-										#echo " Checking sshd config on server ... ";
 										result=""
 										result=$(ssh -p $serverSSHPort $serverUserName@$serverIPAddress 'if [ "$(cat /etc/ssh/sshd_config | grep -iwc "HostbasedUsesNameFromPacketOnly yes")" -gt 0 ]; then echo "true"; else echo "false"; fi;')
 										echo -n " Checking sshd config on server ... ";
@@ -528,9 +469,5 @@ c=0
 	echo
 	echo "[$colorGreen Servers data processing completed! $colorEnd]"
 	echo
-
-
-
-
 
 
