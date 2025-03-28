@@ -52,6 +52,11 @@ export systemSolanaService="solana-$networkType.service" #in my case of testnet:
 
 export nodeID="1"
 export rpcURL="http://localhost:8899"
+export rpcURL1="https://api.mainnet-beta.solana.com"
+export rpcURL2="https://a1pi.mainnet-beta.solana.com"
+export rpcURL3="https://api.mainnet-beta.solana.com"
+rpcServers=("$rpcURL1" "$rpcURL2" "$rpcURL3")
+
 configJsonRpcUrl=`${execSolana} config get json_rpc_url | awk '{print $3}'`
 configWebsocketUrl=`${execSolana} config get websocket_url | awk '{print $3}'`
 
@@ -112,10 +117,11 @@ function checkConnectionInternet()
 
 function checkConnectionHost()
 {
+	local result=false
 	local host=$1
 	#echo -n "Checking connection to $host... "
 
-	ping -c2 $host &> /dev/null
+	ping -c2 $host &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			result=true
 		else
@@ -127,8 +133,77 @@ function checkConnectionHost()
 }
 
 
+
+function getCatchup()
+{
+	local result=false
+	local diff=false
+	local getSlotThem=0
+	local getSlotUs=0
+
+	for rpcServer in "${rpcServers[@]}"
+	do
+		echo -n "Requesting cluster slot ... "
+		getSlotThem=`$execSolana slot --url $rpcServer --commitment confirmed 2>/dev/null`
+
+			if [[ "$getSlotThem" -gt 0 ]]
+			then
+				result=true
+				echo "[$colorGreen $getSlotThem $colorEnd]"
+				break
+			else
+				result=false
+				echo "[$colorRed FAILED: $rpcServer $colorEnd]"
+				sendNotification "ERROR" "Failed to get cluster slot from external RPC $rpcServer, trying next one..."
+			fi
+	done
+
+
+		if [[ "$result" == "true" ]]
+		then
+			echo -n "Requesting local slot ... "
+			getSlotUs=`$execSolana slot --url $rpcURL --commitment confirmed 2>/dev/null`
+
+				if [[ $? -eq 0 ]]
+				then
+			
+					if [[ $getSlotUs -gt 0 ]]
+					then
+						result=true
+						echo "[$colorGreen $getSlotUs $colorEnd]"
+						echo -n "Calculating catchup gap ... "
+						diff=$(($getSlotThem - $getSlotUs))
+						echo "[$colorGreen $diff $colorEnd]"
+						echo $diff
+						return
+					else
+						result=false
+						echo "[$colorRed FAILED $colorEnd]"
+						#echo "Wrong value! Is node down?"
+						sendNotification "ERROR" "Wrong value got from LOCAL RPC. Is node down?"
+					fi
+				else
+					result=false
+	        	                echo "[$colorRed FAILED $colorEnd]"
+               				#echo "Failed to get slot number from local RPC. Is node down?"
+		                        sendNotification "ERROR" "Failed to get slot number from local RPC. Is node down?"
+				fi
+		else
+			result=false
+			echo "[$colorRed FAILED $colorEnd]"
+			#echo "Failed to get cluster slot. Check URLs, RPC servers, connection and/or try again."
+			sendNotification "ERROR" "Failed to get cluster slot. Check URLs, RPC servers, connection and/or try again."
+		fi
+		
+
+}
+
+
+
 function sendToLog()
 {
+	local result=""
+
 	echo -n "Checking log path ... "
 
 		if [ -d "$logPath" ]; then
@@ -186,7 +261,7 @@ function sendToLog()
 
 
 	dateTimeNow=`date +"%Y-%m-%d %H:%M:%S"`
-	echo "$dateTimeNow $systemHostname $BASH_SOURCE:$FUNCNAME $1 $2" >> $logPath/$logFile
+	echo "$dateTimeNow $systemHostname $1 $2" >> $logPath/$logFile
 }
 
 
@@ -220,9 +295,9 @@ function sendToTelegram()
 	    }')
 
 	   #echo $messageJSON
-	   curl -s -d "$messageJSON" -H "Content-Type: application/json" -X POST https://api.telegram.org/bot${telegramBotToken}/sendMessage
+	   curl -s -d "$messageJSON" -H "Content-Type: application/json" -X POST https://api.telegram.org/bot${telegramBotToken}/sendMessage 2>/dev/null
    	else
-	   curl -s --data parse_mode=HTML --data chat_id=${telegramChatID} --data text="<b>${messageTitle}</b>%0A${messageBody}" --request POST https://api.telegram.org/bot${telegramBotToken}/sendMessage
+	   curl -s --data parse_mode=HTML --data chat_id=${telegramChatID} --data text="<b>${messageTitle}</b>%0A${messageBody}" --request POST https://api.telegram.org/bot${telegramBotToken}/sendMessage 2>/dev/null
 	fi
 }
 
@@ -230,6 +305,8 @@ function sendToTelegram()
 
 function sendAlert()
 {
+	local result=""
+
 		if [[ ! -z $1 ]]; then
                         notificationBody=$1
                 else
@@ -247,7 +324,7 @@ function sendAlert()
 			exit $?
 		else
 			sendNotification "ALERT" "$notificationBody"
-			result=`curl -s -v -d "solanaValidatorAlert" $voipCallURI`
+			result=`curl -s -v -d "solanaValidatorAlert" $voipCallURI 2>/dev/null`
 
 				if [[ $? -eq 0 ]]; then
 					sendNotification "INFO" "Call alerting successfuly initiated"
