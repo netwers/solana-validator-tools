@@ -143,17 +143,17 @@ function getCatchup()
 
 	for rpcServer in "${rpcServers[@]}"
 	do
-		echo -n "Requesting cluster slot ... "
+		echo -n "Requesting cluster slot ... " >&2
 		getSlotThem=`$execSolana slot --url $rpcServer --commitment confirmed 2>/dev/null`
 
 			if [[ "$getSlotThem" -gt 0 ]]
 			then
 				result=true
-				echo "[$colorGreen $getSlotThem $colorEnd]"
+				echo "[$colorGreen $getSlotThem $colorEnd]" >&2
 				break
 			else
 				result=false
-				echo "[$colorRed FAILED: $rpcServer $colorEnd]"
+				echo "[$colorRed FAILED: $rpcServer $colorEnd]" >&2
 				sendNotification "ERROR" "Failed to get cluster slot from external RPC $rpcServer, trying next one..."
 			fi
 	done
@@ -161,7 +161,7 @@ function getCatchup()
 
 		if [[ "$result" == "true" ]]
 		then
-			echo -n "Requesting local slot ... "
+			echo -n "Requesting local slot   ... " >&2
 			getSlotUs=`$execSolana slot --url $rpcURL --commitment confirmed 2>/dev/null`
 
 				if [[ $? -eq 0 ]]
@@ -170,32 +170,30 @@ function getCatchup()
 					if [[ $getSlotUs -gt 0 ]]
 					then
 						result=true
-						echo "[$colorGreen $getSlotUs $colorEnd]"
-						echo -n "Calculating catchup gap ... "
+						echo "[$colorGreen $getSlotUs $colorEnd]" >&2
+						echo -n "Calculating catchup gap ... " >&2
 						diff=$(($getSlotThem - $getSlotUs))
-						echo "[$colorGreen $diff $colorEnd]"
-						echo $diff
-						return
+						echo "[$colorGreen $diff $colorEnd]" >&2
 					else
 						result=false
-						echo "[$colorRed FAILED $colorEnd]"
+						echo "[$colorRed FAILED $colorEnd]" >&2
 						#echo "Wrong value! Is node down?"
 						sendNotification "ERROR" "Wrong value got from LOCAL RPC. Is node down?"
 					fi
 				else
 					result=false
-	        	                echo "[$colorRed FAILED $colorEnd]"
-               				#echo "Failed to get slot number from local RPC. Is node down?"
+	        	                echo "[$colorRed FAILED $colorEnd]" >&2
+               				echo "Failed to get slot number from local RPC. Is node down?" >&2
 		                        sendNotification "ERROR" "Failed to get slot number from local RPC. Is node down?"
 				fi
 		else
 			result=false
-			echo "[$colorRed FAILED $colorEnd]"
-			#echo "Failed to get cluster slot. Check URLs, RPC servers, connection and/or try again."
+			echo "[$colorRed FAILED $colorEnd]" >&2
+			echo "Failed to get cluster slot. Check URLs, RPC servers, connection and/or try again." >&2
 			sendNotification "ERROR" "Failed to get cluster slot. Check URLs, RPC servers, connection and/or try again."
 		fi
-		
 
+	echo $diff
 }
 
 

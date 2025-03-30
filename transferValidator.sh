@@ -194,7 +194,6 @@ result=$($execSSHRemote "if [[ -e $destinationKeyFileUnstakedPath ]]; then echo 
                 exit 1
         fi
 
-
 echo
 echo "Destination: okay, i've got these command lines:"
 echo " $destinationExecSolanaValidator -l $destinationLedgerPath set-identity --require-tower $destinationKeyFileStakedPath"

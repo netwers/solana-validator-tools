@@ -15,11 +15,11 @@ echo ""
 echo "Starting solana..."
 echo ""
 
-rpcIPAddress="185.81.65.80"
+rpcIPAddress="64.176.65.109:8899"
 rpcURL="http://$rpcIPAddress"
 
 wget -P $validatorPath/snapshots/ --content-disposition $rpcURL/snapshot.tar.bz2 && \
 	wget -P $validatorPath/incremental_snapshots/ --content-disposition $rpcURL/incremental-snapshot.tar.bz2 && \
-	sudo service $systemSolanaService start && \
-	$execSolanaValidator --ledger $ledgerPath monitor
+	sudo systemctl start $systemSolanaService && \
+	$scriptPath/monitor.sh
 
