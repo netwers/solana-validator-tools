@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
-#
-# Solana Validator failover and identity transition script by Netwers, 2021-2024.
-#
-#
+
+# ================================================================================= #
+# Solana Validator failover and identity transition script by Netwers, 2021-2025.   #
+# Version: 0.2                                                                      #
+#                                                                                   #
+# Stake with us!                                                                    #
+# QuantumElevator - reliable and high performance Solana validator                  #
+# www: https://www.qeleva.com/                                                      #
+# ================================================================================= #
 
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
-
-destinationIPAddress="0.0.0.0" # ip address of your secondary/backup server
 
 echo "Hello!"
 echo
@@ -16,21 +19,18 @@ echo " hostname:         $systemHostname"
 echo " IP address:       $systemIPAddress"
 echo " current keyFile:  $keysPath/$validatorKeyFile"
 echo " unstaked keyFile: $keysPath/$validatorKeyFileUnstaked"
-echo " destination:      $destinationIPAddress"
-
 
 serversListFile="serversList.json"
 serversListFilePath="$nodePath/$serversListFile"
 sshCertsPath="$nodePath/ssh-certs"
 sshCertFileName="id_rsa"
 serversList=$(cat $serversListFilePath)
-serverList=$(echo $serversList | jq -r  '.[] | select (.ipAddress=="'$destinationIPAddress'")')
-
-destinationName=$(echo $serverList        | jq -r ".serverName")
-destinationIPAddress=$(echo $serverList   | jq -r ".ipAddress")
-destinationSSHPort=$(echo $serverList     | jq -r ".sshPort")
-destinationUserName=$(echo $serverList    | jq -r ".serverUserName")
-destinationSSHCertPath=$(echo $serverList | jq -r ".sshCertPath")
+destinationServer=$(echo $serversList | jq -r '.[] | select (.destinationServer=="true")')
+destinationName=$(echo $destinationServer        | jq -r ".serverName")
+destinationIPAddress=$(echo $destinationServer   | jq -r ".ipAddress")
+destinationSSHPort=$(echo $destinationServer     | jq -r ".sshPort")
+destinationUserName=$(echo $destinationServer    | jq -r ".serverUserName")
+destinationSSHCertPath=$(echo $destinationServer | jq -r ".sshCertPath")
 
 
 echo
@@ -40,7 +40,6 @@ echo " IP address:       $destinationIPAddress"
 echo " SSH port:         $destinationSSHPort"
 echo " userName:         $destinationUserName"
 echo " SSH cert path:    $destinationSSHCertPath"
-#echo " ledger path:      $ledgerPath"
 echo
 
 echo -n "Destination: initiating cached SSH connection ... "
@@ -196,12 +195,19 @@ result=$($execSSHRemote "if [[ -e $destinationKeyFileUnstakedPath ]]; then echo 
 
 echo
 echo "Destination: okay, i've got these command lines:"
+echo " /usr/bin/rsync -a -e "ssh -p $destinationSSHPort -i $destinationSSHCertPath" $ledgerPath/tower-1_9-$validatorIdentityPubKeyStaked.bin $destinationUserName@$destinationIPAddress:$destinationLedgerPath/"
 echo " $destinationExecSolanaValidator -l $destinationLedgerPath set-identity --require-tower $destinationKeyFileStakedPath"
 echo " ln -sf $destinationKeyFileStakedPath $destinationKeyFilePath"
 echo "$colorGreen Looks like we're ready. Here we go!$colorEnd"
 echo
 read -p "Press enter to continue"
 echo
+
+# Please comment these lines when testing completed"
+echo
+echo " Safety & debug purposes exit..."
+echo " Comment these 3 lines (207-209) to able this script running"
+exit 0
 
 
 echo -n "Local: setting identity keypair symlink to unstaked ... "

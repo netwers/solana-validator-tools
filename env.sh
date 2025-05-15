@@ -24,6 +24,7 @@ required curl
 required rsync
 required ssh
 required nmap
+required nc
 
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 
@@ -54,7 +55,7 @@ export nodeID="1"
 export rpcURL="http://localhost:8899"
 export rpcURL1="https://api.mainnet-beta.solana.com"
 export rpcURL2="https://a1pi.mainnet-beta.solana.com"
-export rpcURL3="https://api.mainnet-beta.solana.com"
+export rpcURL3="https://apii.mainnet-beta.solana.com"
 rpcServers=("$rpcURL1" "$rpcURL2" "$rpcURL3")
 
 configJsonRpcUrl=`${execSolana} config get json_rpc_url | awk '{print $3}'`
@@ -64,19 +65,24 @@ export nodePath="$HOME/snode"
 export validatorPath="$nodePath/$networkType"
 export ledgerPath="$validatorPath/ledger"
 export snapshotsPath="$validatorPath/snapshots"
+export snapshotsIncrementalPath="$validatorPath/incremental_snapshots"
 export accountsPath="$validatorPath/accounts"
 export accounts_hash_cachePath="$validatorPath/accounts_hash_cache"
 export accounts_indexPath="$validatorPath/accounts_index"
 export keysPath="$nodePath/sol-keys/$networkType-$nodeID"
 export notificationConfigPath="$nodePath/notificationConfig.json"
-	#										#
-	#  telegramBotConfig.json structure example:					#
+                                 #            🔻🔻🔻
+	# ============================================================================= #
+	# notificationConfig.json structure example:					#
 	#										#
 	#   {										#
 	#   "telegramBotToken": "0123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",	#
 	#   "telegramChatID":   "0000000000"						#
+	#   "voipCallURI":      "https://voip_pbx_api_url/"                             #
 	#   }										#
-	#										#
+	#                                                                               #
+	# ============================================================================= #
+
 logPath=$nodePath
 logFile="journal.log"
 
@@ -91,7 +97,6 @@ export validatorIdentityPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorK
 export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFileStaked`
 export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
 export validatorSelfstakeAccountPubkey=`cat $keysPath/selfstake-account.addr`
-#export validatorBondMarinadePubkey=`cat $keysPath/bond-marinade.addr`
 
 
 # functions
