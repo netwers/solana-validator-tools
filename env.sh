@@ -357,6 +357,38 @@ function sendNotification()
 	sendToLog "$notificationType" "$notificationBody"
 }
 
+
+
+function getValidatorInfo()
+{
+        local result=false
+
+	        for rpcServer in "${rpcServers[@]}"
+	        do
+			if [[ -z $1 ]]
+			then
+				echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."
+		               	echo "Usage: $0 <validator_identity_pubkey>"
+			else
+				validatorIdentityPubKey=$1
+			fi
+			
+		echo -n "Requesting validator info from cluster ... " >&2
+				
+		result=`$execSolana validators --url $rpcServer --output=json | jq ".validators[] | select(.identityPubkey==\"$validatorIdentityPubKey\")" 2>/dev/null`
+			
+			if [[ $? -eq 0 ]]
+			then
+				echo "[$colorGreen OK $colorEnd]" >&2
+				echo $result
+				break
+			fi
+
+		done
+
+}
+
+
 #echo -ne "Checking config ... "
 #
 #	if  [[ "$networkType" == "testnet" ]]; then
