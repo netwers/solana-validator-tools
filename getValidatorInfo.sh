@@ -17,4 +17,4 @@ echo
                 validatorIdentityPubKey=$1
         fi
 
-$execSolana validators --output=json | jq ".validators[] | select(.identityPubkey==\"$validatorIdentityPubKey\")"
+$execSolana validators --url $rpcURL --output=json | jq ".validators[] | select(.identityPubkey==\"$validatorIdentityPubKey\")"
