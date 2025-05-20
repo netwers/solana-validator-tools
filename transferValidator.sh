@@ -203,12 +203,12 @@ echo
 read -p "Press enter to continue"
 echo
 
-# Please comment these lines when testing completed"
+# ------- Please comment these lines when testing completed" -------
 echo
 echo " Safety & debug purposes exit..."
 echo " Comment these 3 lines (207-209) to able this script running"
 exit 0
-
+# ------------------------------------------------------------------
 
 echo -n "Local: setting identity keypair symlink to unstaked ... "
 ln -sf $keysPath/$validatorKeyFileUnstaked $keysPath/$validatorKeyFile

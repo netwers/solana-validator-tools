@@ -6,9 +6,7 @@
 
 scriptPath=`cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P`
 source "${scriptPath}/env.sh"
-#echo
-#date
-echo
+
 
         if [[ -z $1 ]]; then
 		echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."

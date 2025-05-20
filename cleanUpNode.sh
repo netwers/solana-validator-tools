@@ -59,10 +59,28 @@ date
                         read -p "Do you want to delete snapshots also? (y/n) " yn
                         case $yn in
                                 [yY] ) echo -n "Removing snapshots ... ";
-                                        echo "[$colorGreen OK $colorEnd]"
-                                        rm -rf $snapshotsPath/*
-                                        rm -rf $snapshotsIncrementalPath/*
-                                        ;;
+
+					rm -rf $snapshotsPath/*
+
+						if [[ $? -eq 0 ]]
+		                                then
+	        	                                echo "[$colorGreen OK $colorEnd]" >&2
+	                	                else
+	                        	                echo "[$colorRed FAILED $colorEnd]" >&2
+		                                fi
+
+
+					echo -n "Removing incremental snapshots ... ";
+
+					rm -rf $snapshotsIncrementalPath/*
+
+						if [[ $? -eq 0 ]]
+        	                	        then
+        	        	                        echo "[$colorGreen OK $colorEnd]" >&2
+                		                else
+        	                	                echo "[$colorRed FAILED $colorEnd]" >&2
+		                                fi
+					;;
 
                                 [nN] ) echo "Proceeding without deleting snapshots ... ";
                                         ;;
@@ -72,19 +90,37 @@ date
 
                         echo -n "Removing accounts, indexes and hashes ... ";
                         rm -rf $accountsPath*/*
-                        echo "[$colorGreen OK $colorEnd]"
+			
+				if [[ $? -eq 0 ]]
+                                then
+                                        echo "[$colorGreen OK $colorEnd]" >&2
+                                else
+                                        echo "[$colorRed FAILED $colorEnd]" >&2
+                                fi
 
-                        #echo -n "Removing accounts hashes... ";
-                        #rm -rf $accounts_hash_cachePath/*
-                        #echo "[$colorGreen OK $colorEnd]"
 
-                        #echo -n "Removing accounts index... ";
-                        #rm -rf $accounts_indexPath/*
-                        #echo "[$colorGreen OK $colorEnd]"
 
-                        echo -n "Removing ledger ... ";
-                        rm -rf $ledgerPath/*
-                        echo "[$colorGreen OK $colorEnd]"
+                        echo -n "Removing ledger, but keeping contact-info.bin, genesis.bin, genesis.tar.bz2 and tower- file ... ";
+
+			find $ledgerPath/ -depth ! -name contact-info.bin ! -name genesis.bin ! -name genesis.tar.bz2 ! -name tower-1_9-$validatorIdentityPubKeyStaked.bin -type d,f,s -print
+                        #rm -rf $ledgerPath/*
+
+				if [[ $? -eq 0 ]]
+                                then
+                                        echo "[$colorGreen OK $colorEnd]" >&2
+                                else
+                                        echo "[$colorRed FAILED $colorEnd]" >&2
+                                fi
+
+
+			echo -n "Trim is processing ... "
+
+				if [[ $? -eq 0 ]]
+				then
+					echo "[$colorGreen OK $colorEnd]" >&2
+				else
+					echo "[$colorRed FAILED $colorEnd]" >&2
+				fi
 
         fi
 
