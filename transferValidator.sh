@@ -200,7 +200,7 @@ echo " $destinationExecSolanaValidator -l $destinationLedgerPath set-identity --
 echo " ln -sf $destinationKeyFileStakedPath $destinationKeyFilePath"
 echo "$colorGreen Looks like we're ready. Here we go!$colorEnd"
 echo
-read -p "Press enter to continue"
+#read -p "Press enter to continue"
 echo
 
 # ------- Please comment these lines when testing completed" -------
