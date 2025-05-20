@@ -102,7 +102,7 @@ date
 
                         echo -n "Removing ledger, but keeping contact-info.bin, genesis.bin, genesis.tar.bz2 and tower- file ... ";
 
-			find $ledgerPath/ -depth ! -name contact-info.bin ! -name genesis.bin ! -name genesis.tar.bz2 ! -name tower-1_9-$validatorIdentityPubKeyStaked.bin -type d,f,s -print
+			find $ledgerPath/ -depth ! -name contact-info.bin ! -name genesis.bin ! -name genesis.tar.bz2 ! -name tower-1_9-$validatorIdentityPubKeyStaked.bin -type d,f,s -delete
                         #rm -rf $ledgerPath/*
 
 				if [[ $? -eq 0 ]]
@@ -114,6 +114,8 @@ date
 
 
 			echo -n "Trim is processing ... "
+
+			sudo fstrim -av
 
 				if [[ $? -eq 0 ]]
 				then
