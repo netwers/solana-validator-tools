@@ -15,5 +15,5 @@ source "${scriptPath}/env.sh"
                 validatorIdentityPubKey=$1
         fi
 
-rpcURL="https://mainnet.helius-rpc.com/?api-key=241f38d6-a923-44f4-8438-b6360d11a582"
+rpcURL="https://mainnet.helius-rpc.com/?api-key=2c98b537-1ed6-4def-9dbb-d1cdfa12dba6"
 $execSolana validators --url $rpcURL --output=json | jq ".validators[] | select(.identityPubkey==\"$validatorIdentityPubKey\")"

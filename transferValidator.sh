@@ -31,7 +31,7 @@ destinationIPAddress=$(echo $destinationServer   | jq -r ".ipAddress")
 destinationSSHPort=$(echo $destinationServer     | jq -r ".sshPort")
 destinationUserName=$(echo $destinationServer    | jq -r ".serverUserName")
 destinationSSHCertPath=$(echo $destinationServer | jq -r ".sshCertPath")
-
+execSSHRemote="ssh -p $destinationSSHPort -i $destinationSSHCertPath -f $destinationUserName@$destinationIPAddress"
 
 echo
 echo "I've got this for destination machine:"
@@ -40,11 +40,12 @@ echo " IP address:       $destinationIPAddress"
 echo " SSH port:         $destinationSSHPort"
 echo " userName:         $destinationUserName"
 echo " SSH cert path:    $destinationSSHCertPath"
+echo " remote SSH:       $execSSHRemote"
 echo
 
 echo -n "Destination: initiating cached SSH connection ... "
-execSSHRemote="ssh -p $destinationSSHPort -i $destinationSSHCertPath -f $destinationUserName@$destinationIPAddress"
-result=$($execSSHRemote 'echo "true" > ~/testSSHConnection && cat ~/testSSHConnection && rm -rf ~/testSSHConnection')
+result=`ssh -p $destinationSSHPort -i $destinationSSHCertPath $destinationUserName@$destinationIPAddress 'echo "true" > ~/testSSHConnection && cat ~/testSSHConnection && rm -rf ~/testSSHConnection'`
+
 
 	if [[ "$result" == "true" ]]; then
 		echo "[$colorGreen OK $colorEnd]"
@@ -200,7 +201,7 @@ echo " $destinationExecSolanaValidator -l $destinationLedgerPath set-identity --
 echo " ln -sf $destinationKeyFileStakedPath $destinationKeyFilePath"
 echo "$colorGreen Looks like we're ready. Here we go!$colorEnd"
 echo
-#read -p "Press enter to continue"
+read -p "Press enter to continue"
 echo
 
 # ------- Please comment these lines when testing completed" -------
