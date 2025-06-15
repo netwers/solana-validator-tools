@@ -19,11 +19,8 @@ echo " hostname:         $systemHostname"
 echo " IP address:       $systemIPAddress"
 echo " current keyFile:  $keysPath/$validatorKeyFile"
 echo " unstaked keyFile: $keysPath/$validatorKeyFileUnstaked"
+echo " servers list:     $serversListFilePath"
 
-serversListFile="serversList.json"
-serversListFilePath="$nodePath/$serversListFile"
-sshCertsPath="$nodePath/ssh-certs"
-sshCertFileName="id_rsa"
 serversList=$(cat $serversListFilePath)
 destinationServer=$(echo $serversList | jq -r '.[] | select (.destinationServer=="true")')
 destinationName=$(echo $destinationServer        | jq -r ".serverName")
@@ -205,10 +202,10 @@ read -p "Press enter to continue"
 echo
 
 # ------- Please comment these lines when testing completed" -------
-#echo
-#echo " Safety & debug purposes exit..."
-#echo " Comment these 3 lines (207-209) to able this script running"
-#exit 0
+echo
+echo " Safety & debug purposes exit..."
+echo " Comment these 3 lines (207-209) to able this script running"
+exit 0
 # ------------------------------------------------------------------
 
 echo -n "Local: setting identity keypair symlink to unstaked ... "
