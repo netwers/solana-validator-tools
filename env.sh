@@ -91,11 +91,13 @@ export validatorKeyFileStaked="validator-staked-keypair.json"
 export validatorKeyFileUnstaked1="validator-unstaked-1-keypair.json"
 export validatorKeyFileUnstaked2="validator-unstaked-2-keypair.json"
 export validatorKeyFileUnstaked3="validator-unstaked-3-keypair.json" # We have 3 mainnet servers (1x primary, 2x secondary)
-export validatorKeyFileUnstaked=$validatorKeyFileUnstaked3 # default unstaked keypair for local (current) machine
+export validatorKeyFileUnstaked=$validatorKeyFileUnstaked2 # default unstaked keypair for local (current) machine
 export validatorVoteAccountKeyFile="vote-account-keypair.json"
+export validatorVoteAccountAddrFile="vote-account-keypair.addr"
 export validatorIdentityPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFile`
 export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFileStaked`
-export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
+#export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
+export validatorVoteAccountPubKey=`cat $keysPath/$validatorVoteAccountAddrFile`
 export validatorSelfstakeAccountPubkey=`cat $keysPath/selfstake-account.addr`
 
 
