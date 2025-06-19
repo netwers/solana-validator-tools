@@ -46,6 +46,36 @@ export systemIPAddress=$(curl -sf --insecure --connect-timeout 2 'https://netwer
 export systemSSHPort=$(cat /etc/ssh/sshd_config | grep -iw port | awk '{print $2}')
 export serversListFileName="serversList.json"
 export serversListFilePath="$nodePath/$serversListFileName"
+                                 #            🔻🔻🔻
+        # ============================================================================= #
+	# serversList.json structure example:						#
+	#										#
+	#  [										#
+	#    {										#
+	#     "serverName": "solana-mainnet-1",						#
+	#     "ipAddress": "38.24.18.15",						#
+	#     "sshPort": "22",								#
+	#     "serverUserName": "user",							#
+	#     "destinationServer": "true",						#
+	#     "sshPortStatus": null,							#
+	#     "sshCertPath": "/home/user/ssh-certs/solana-mainnet-1/id_rsa",		#
+	#     "online": null,								#
+	#     "ping": null,								#
+	#     "sshConnection": null,							#
+	#     "systemUsageRAM": null,							#
+	#     "systemUsageCPU": null,							#
+	#     "systemUsageStorageLedger": null,						#
+	#     "systemUsageStorageAccounts": null,					#
+	#     "validator": null,							#
+	#     "delinquent": null,							#
+	#     "catchup": null,								#
+	#     "localServer": "false",							#
+	#     "updatedUnixtime": null							#
+	#    }										#
+	#  ]										#
+        #                                                                               #
+        # ============================================================================= #
+
 export sshCertsPath="$nodePath/ssh-certs"
 export sshCertFileName="id_rsa"
 export networkType="mainnet"
@@ -96,7 +126,6 @@ export validatorVoteAccountKeyFile="vote-account-keypair.json"
 export validatorVoteAccountAddrFile="vote-account-keypair.addr"
 export validatorIdentityPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFile`
 export validatorIdentityPubKeyStaked=`${execSolanaKeygen} pubkey $keysPath/$validatorKeyFileStaked`
-#export validatorVoteAccountPubKey=`${execSolanaKeygen} pubkey $keysPath/$validatorVoteAccountKeyFile`
 export validatorVoteAccountPubKey=`cat $keysPath/$validatorVoteAccountAddrFile`
 export validatorSelfstakeAccountPubkey=`cat $keysPath/selfstake-account.addr`
 
