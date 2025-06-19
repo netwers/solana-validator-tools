@@ -2,7 +2,8 @@
 
 function die ()
 {
-    if [ -n "$1" ]; then
+    if [ -n "$1" ]
+    then
         echo "$1"
     fi
 
@@ -19,6 +20,7 @@ required solana-keygen
 required agave-validator
 required base64
 required jq
+required yq
 required bc
 required curl
 required rsync
@@ -137,13 +139,16 @@ function checkConnectionInternet()
 	local result=false
 	local hosts=("1.1.1.1" "79.174.71.189" "www.noc.org")
 
-	for host in "${hosts[@]}"; do
+	for host in "${hosts[@]}"
+	do
 		ping -c1 $host &> /dev/null
-		if [[ $? -eq 0 ]]; then
-			result=true
-			echo $result
-			return
-		fi
+
+			if [[ $? -eq 0 ]]
+			then
+				result=true
+				echo $result
+				return
+			fi
 	done
 
 	echo $result
@@ -158,7 +163,8 @@ function checkConnectionHost()
 	#echo -n "Checking connection to $host... "
 
 	ping -c2 $host &>/dev/null
-		if [[ $? -eq 0 ]]; then
+		if [[ $? -eq 0 ]]
+		then
 			result=true
 		else
 			result=false
@@ -167,7 +173,6 @@ function checkConnectionHost()
 	echo $result
 	return
 }
-
 
 
 function getCatchup()
@@ -233,14 +238,14 @@ function getCatchup()
 }
 
 
-
 function sendToLog()
 {
 	local result=""
 
 	echo -n "Checking log path ... "
 
-		if [ -d "$logPath" ]; then
+		if [ -d "$logPath" ]
+		then
 			echo "[$colorGreen OK $colorEnd]"
 		else
 			echo "[$colorRed FAILED $colorEnd]"
@@ -248,7 +253,8 @@ function sendToLog()
 			mkdir -p $logPath
 			result=$?
 			
-				if [ $result -eq 0 ]; then
+				if [ $result -eq 0 ]
+				then
 					echo "[$colorGreen OK $colorEnd]"
 				else
 					echo "[$colorRed FAILED $colorEnd]"
@@ -260,7 +266,8 @@ function sendToLog()
 
 	echo -n "Checking log file ... "
 
-		if [ -f $logPath/$logFile ]; then
+		if [ -f $logPath/$logFile ]
+		then
 			echo "[$colorGreen OK $colorEnd]"
 		else
 			echo "[$colorRed FAILED $colorEnd]"
@@ -268,7 +275,8 @@ function sendToLog()
 	                touch $logPath/$logFile
 			result=$?
 
-	                        if [ $result -eq 0 ]; then
+	                        if [ $result -eq 0 ]
+				then
         	                        echo "[$colorGreen OK $colorEnd]"
                 	        else
                         	        echo "[$colorRed FAILED $colorEnd]"
@@ -279,14 +287,16 @@ function sendToLog()
 		fi
 
 	
-		if [[ ! -z $1 ]]; then
+		if [[ ! -z $1 ]]
+		then
 			eventType=$1
 		else
 			eventType="unknown_event"
 		fi
 
 
-		if [[ ! -z $2 ]]; then
+		if [[ ! -z $2 ]]
+		then
 			eventBody=$2
 		else
 			eventBody="none"
@@ -305,21 +315,24 @@ function sendToTelegram()
 	telegramChatID=$(cat   $notificationConfigPath | jq '.telegramChatID'   | tr -d '"')
 
 
-                if [[ ! -z $1 ]]; then
+                if [[ ! -z $1 ]]
+		then
                         messageTitle="$systemHostname: $1"
                 else
                         messageTitle="$systemHostname: "
                 fi
 
 
-                if [[ ! -z $2 ]]; then
+                if [[ ! -z $2 ]]
+		then
                         messageBody=$2
                 else
                         messageBody="test"
                 fi
 
 
-	if [[ ! -z ${messageBody} ]]; then
+	if [[ ! -z ${messageBody} ]]
+	then
 		messageJSON=$(echo "" | awk -v TITLE="$messageTitle" -v MESSAGE="*${messageTitle}* ${messageBody}" -v CHAT_ID="$telegramChatID" '{
 		print "{";
 	        print "     \"chat_id\" : " CHAT_ID ","
@@ -328,7 +341,6 @@ function sendToTelegram()
 	        print "}";
 	    }')
 
-	   #echo $messageJSON
 	   curl -s -d "$messageJSON" -H "Content-Type: application/json" -X POST https://api.telegram.org/bot${telegramBotToken}/sendMessage 2>/dev/null
    	else
 	   curl -s --data parse_mode=HTML --data chat_id=${telegramChatID} --data text="<b>${messageTitle}</b>%0A${messageBody}" --request POST https://api.telegram.org/bot${telegramBotToken}/sendMessage 2>/dev/null
@@ -336,12 +348,12 @@ function sendToTelegram()
 }
 
 
-
 function sendAlert()
 {
 	local result=""
 
-		if [[ ! -z $1 ]]; then
+		if [[ ! -z $1 ]]
+		then
                         notificationBody=$1
                 else
                         notificationBody="unknown"
@@ -351,7 +363,8 @@ function sendAlert()
 	voipCallURI=$(cat $notificationConfigPath | jq '.voipCallURI' | tr -d '"')
 
 
-		if [[ -z $voipCallURI ]]; then
+		if [[ -z $voipCallURI ]]
+		then
 			echo "Getting API URI for voip alerting ... [$colorRed FAILED $colorEnd]"
 			echo "Check 'voipCallURI' value in the notification config $notificationConfigPath"
 			sendNotification "ERROR" "Failed getting API URI for voip alerting. Check 'voipCallURI' value in the notification config $notificationConfigPath"
@@ -360,7 +373,8 @@ function sendAlert()
 			sendNotification "ALERT" "$notificationBody"
 			result=`curl -s -v -d "solanaValidatorAlert" $voipCallURI 2>/dev/null`
 
-				if [[ $? -eq 0 ]]; then
+				if [[ $? -eq 0 ]]
+				then
 					sendNotification "INFO" "Call alerting successfuly initiated"
 				else
 					echo "There is a problem with voip alerting function. Curl request failed"
@@ -370,15 +384,17 @@ function sendAlert()
 }
 
 
-
 function sendNotification()
 {
-		if [[ ! -z $1 ]]; then
+		if [[ ! -z $1 ]]
+		then
 			notificationType=$1
                 else
                         notificationType="INFO"
                 fi
-		if [[ ! -z $2 ]]; then
+
+		if [[ ! -z $2 ]]
+		then
 			notificationBody=$2
 		else
 			notificationBody="unknown"
@@ -387,7 +403,6 @@ function sendNotification()
 	sendToTelegram "$notificationType" "$notificationBody"
 	sendToLog "$notificationType" "$notificationBody"
 }
-
 
 
 function getValidatorInfo()
@@ -399,7 +414,7 @@ function getValidatorInfo()
 			if [[ -z $1 ]]
 			then
 				echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."
-		               	echo "Usage: $0 <validator_identity_pubkey>"
+		               	echo "Usage: $FUNCNAME <validator_identity_pubkey>"
 			else
 				validatorIdentityPubKey=$1
 			fi
@@ -418,6 +433,211 @@ function getValidatorInfo()
 		done
 
 }
+
+
+function getAirdrop()
+{
+	airdropSignature=`$execSolana airdrop 1 $keysPath/$validatorKeyFile | grep -i "signature:" | awk '{print $2}'`
+	echo
+	echo Result: $airdropSignature
+	echo
+	
+	        if [[ ! -z $airdropSignature ]]
+		then
+			$execSolana confirm -v $airdropSignature -k $keysPath/$validatorKeyFile
+
+		else
+			echo "Airdrop failed"
+	        fi
+}
+
+
+function getInflationRewards()
+{
+	echo
+
+	        if [[ -z $1 ]] || [[ -z $2 ]]
+		then
+			epochNumber=$(($epochNumberCurrent - 1))
+
+			echo "Parameters missed. I gonna use $validatorVoteAccountPubKey from env.sh and current epoch-1 instead ($epochNumberCurrent - 1 = $epochNumber)."
+	                echo "Usage: $FUNCNAME <vote_account_pubkey-or-vote_account_keypair> <epoch>"
+	                echo "Make sure specified epoch is complete."
+
+		else
+	                validatorVoteAccountPubKey=$1
+	                epochNumber=$2
+	        fi
+
+	$execSolana inflation rewards $validatorVoteAccountPubKey --rewards-epoch $epochNumber
+	echo
+}
+
+
+function getIPAddressByVoteAccount()
+{
+
+	        if [[ -z $1 ]]
+		then
+	                echo "Vote account unspecified. I gonna use $validatorVoteAccountPubKey from env.sh instead."
+	                echo "Usage: $FUNCNAME <vote_account_addr>"
+	        else
+	                validatorVoteAccountPubKey=$1
+	        fi
+
+	validatorsJSON=`${execSolana} validators --output=json`
+	gossipJSON=`${execSolana} gossip --output=json`
+	validatorIdentityPubKey=`echo $validatorsJSON | jq '.validators[] | select (.voteAccountPubkey=="'$validatorVoteAccountPubKey'").identityPubkey' | tr -d "\""`
+	ipAddress=`echo $gossipJSON | jq '.[] | select (.identityPubkey=="'$validatorIdentityPubKey'").ipAddress' | tr -d "\""`
+
+	#echo $ipAddress >> $logPath/ipAddress-$validatorVoteAccountPubKey.txt
+	#whois $ipAddress
+
+	echo "Vote:     $validatorVoteAccountPubKey"
+	echo "Identity: $validatorIdentityPubKey"
+	echo "IP:       $ipAddress"
+	echo
+}
+
+
+function getFoundationStatus()
+{
+
+	        if [[ -z $1 ]]; then
+	                echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."
+	                echo "Usage: $FUNCNAME <validator_identity_pubkey>"
+	        else
+	                validatorIdentityPubKey=$1
+	        fi
+
+	getValidatorInfoFromSFDP=`curl https://api.solana.org/api/validators/$validatorIdentityPubKey`
+	echo $getValidatorInfoFromSFDP | jq
+}
+
+
+function getBalances()
+{
+
+	addrFiles=$(find $keysPath/addrs -maxdepth 2 -type f -name "*.addr" | sort -n)
+	echo $addrFiles | tr " " "\n" > addrFiles.tmp
+
+	        while addrs= read -r addr
+	        do
+	                addrName=${addr#$keysPath/addrs/}
+	                echo -n " $addrName: "
+	
+	                addrBalance=`$execSolana balance $(cat ${addr}) --output json | jq .lamports | jq './1000000|round/1000'`
+	
+	                        if ! [[ "$?" -eq 0 ]]
+	                        then
+	                                echo "0"
+	                        else
+	                                echo $addrBalance
+	                        fi
+	
+	        done < addrFiles.tmp
+	
+	echo
+	rm -rf addrFiles.tmp
+}
+
+
+function getDetailedEpochInfoByValidator()
+{
+                if [[ -z $1 ]] || [[ -z $2 ]]
+                then
+			epochInfo=`curl -s $rpcURL -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1, "method":"getEpochInfo"}'`
+			epochNumberCurrent=`echo $epochInfo | jq .result.epoch`
+                        epochNumber=$(($epochNumberCurrent - 1))
+
+                        echo "Parameters missed. I gonna use $validatorIdentityPubKey from env.sh and current epoch-1 instead ($epochNumberCurrent - 1 = $epochNumber)."
+                        echo "Usage: $FUNCNAME <validator_identity_pubkey> <epoch>"
+                        echo "Make sure specified epoch is complete."
+
+                else
+                        validatorIdentityPubKey=$1
+                        epochNumber=$2
+                fi
+
+	echo "I've got:"
+	echo " Identity: $validatorIdentityPubKey"
+	echo " Epoch:    $epochNumber"
+	echo
+
+        detailedEpochInfo=`curl https://api.trillium.so/validator_rewards/$epochNumber 2>/dev/null`
+        echo $detailedEpochInfo | jq -r '.[] | select (.identity_pubkey=="'$validatorIdentityPubKey'")'
+
+}
+
+
+function getStakeSelf()
+{
+		if [[ -z $1 ]]
+		then
+			echo "Validator pubkey (identity) unspecified. I gonna use $validatorIdentityPubKey from env.sh instead."
+			echo "Usage: $FUNCNAME <validator_identity_pubkey>"
+		else
+			validatorIdentityPubKey=$1
+		fi
+		
+	echo
+	$execSolana stake-account $validatorSelfstakeAccountPubkey --output json
+	echo
+}
+
+
+function monitor()
+{
+	$execSolanaValidator --ledger $ledgerPath monitor
+}
+
+
+function restartSolanaValidator()
+{
+
+	echo
+
+	        if [[ -z $systemSolanaService ]] || [[ "$execSolanaValidator" == "" ]]
+		then
+			echo "Validator system service is not specified, can not to proceed. Please check the env.sh file."
+	        else
+
+		                if [[ -z $ledgerPath ]]
+				then
+	                        	echo "Ledger path is not specified, please check the env.sh file."
+	                        exit 0
+	                	fi
+
+				if [[ -z $execSolanaValidator ]]
+				then
+		                        echo "Solana validator binary file is not specified, please check the env.sh file."
+	                        exit 0
+	        	        fi
+
+                	read -p " Enter max-delinquent-stake, % (5): " max_delinquent_stake
+	                read -p " Enter min-idle-time, minutes (90): " min_idle_time
+
+		                if [[ -z $max_delinquent_stake ]]
+				then
+	                        	echo "Maximum delinquent stake is not specified, setting it to 5%"
+		                        max_delinquent_stake=5
+	        	        fi
+
+	                	if [[ -z $min_idle_time ]]
+				then
+		                        echo "Minimum idle time is not specified, setting it to 90 minutes"
+		                        min_idle_time=90
+	        	        fi
+
+		        echo "Preparing for Solana validator restart..."
+		        echo "Please, do sudo =>"
+		        sudo echo "Thanks!"
+
+		        echo ""
+		        sudo $execSolanaValidator --ledger $ledgerPath wait-for-restart-window --max-delinquent-stake $max_delinquent_stake --min-idle-time $min_idle_time && sudo systemctl stop $systemSolanaService && sudo systemctl start $systemSolanaService
+		fi
+}
+
 
 
 #echo -ne "Checking config ... "
